@@ -1,6 +1,7 @@
 /**
  * 학생 및 교사 인증 관리 엔진
- * 학생 개인정보 최소화: 실명/이메일 없이 '학번(예: 20315) + 4자리 PIN' 기반 인증
+ * 학생 개인정보 최소화: 실명/이메일 없이 '학번 + 4자리 PIN' 기반 인증
+ * 교사 관리자 권한: 관리자 PIN(1234) 검증 기반 격리
  */
 
 export interface UserSession {
@@ -9,18 +10,30 @@ export interface UserSession {
   studentNumber?: string;
   name: string;
   enrolledClassIds: string[];
+  isAdminAuthed?: boolean;
 }
 
-const SESSION_STORAGE_KEY = "math_reflection_session";
+const SESSION_STORAGE_KEY = "math_reflection_session_v3";
 
 export const authEngine = {
-  // 현재 세션 가져오기
+  // 현재 세션 가져오기 (구버전 '박수학' 및 비인가 세션 강제 정제)
   getCurrentSession(): UserSession | null {
     if (typeof window === "undefined") return null;
+
+    // 이전 버전 잔여 세션 키 완전 소거
+    localStorage.removeItem("math_reflection_session");
+    localStorage.removeItem("math_reflection_session_v2");
+
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
     try {
-      return JSON.parse(raw);
+      const parsed: UserSession = JSON.parse(raw);
+      // '박수학' 잔재가 포함되어 있으면 즉시 제거
+      if (parsed.name && parsed.name.includes("박수학")) {
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -35,6 +48,7 @@ export const authEngine = {
       studentNumber,
       name: studentName,
       enrolledClassIds: [],
+      isAdminAuthed: false,
     };
     if (typeof window !== "undefined") {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
@@ -42,13 +56,15 @@ export const authEngine = {
     return session;
   },
 
-  // 교사 간편 로그인
-  loginAsTeacher(teacherName: string): UserSession {
+  // 교사 관리자 로그인 (PIN 1234 인증 완료 시 발급)
+  loginAsTeacher(teacherName?: string): UserSession {
+    const cleanName = teacherName?.trim() || "담당 수학교사";
     const session: UserSession = {
       role: "teacher",
       userId: `tch_${Date.now()}`,
-      name: teacherName || "수학교사",
+      name: cleanName,
       enrolledClassIds: [],
+      isAdminAuthed: true,
     };
     if (typeof window !== "undefined") {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
@@ -56,7 +72,7 @@ export const authEngine = {
     return session;
   },
 
-  // 로그아웃
+  // 로그아웃 (세션 및 관리자 인증 완전 초기화)
   logout(): void {
     if (typeof window !== "undefined") {
       localStorage.removeItem(SESSION_STORAGE_KEY);

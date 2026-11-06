@@ -57,7 +57,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 수업코드 */}
-        <div>
+        <div data-tour="tour-class-code">
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             수업코드
           </label>
@@ -71,7 +71,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({
         </div>
 
         {/* 학번 */}
-        <div>
+        <div data-tour="tour-student-number">
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             학번
           </label>
@@ -90,7 +90,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({
         </div>
 
         {/* 이름 */}
-        <div>
+        <div data-tour="tour-student-name">
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             이름
           </label>
@@ -109,7 +109,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({
         </div>
 
         {/* 4자리 숫자 PIN */}
-        <div>
+        <div data-tour="tour-student-pin">
           <label className="block text-xs font-semibold text-slate-700 mb-1">
             비밀번호 PIN
           </label>
@@ -130,6 +130,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({
 
         <button
           type="submit"
+          data-tour="tour-login-btn"
           className="w-full mt-4 flex items-center justify-center space-x-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-xs"
         >
           <span>입장하기</span>

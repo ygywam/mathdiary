@@ -65,6 +65,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={onOpenClassSetup}
+              data-tour="tour-new-class-btn"
               className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-sm font-semibold transition-colors shadow-xs"
             >
               <PlusCircle className="w-4 h-4" />
@@ -72,6 +73,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </button>
             <button
               onClick={onOpenRosterUpload}
+              data-tour="tour-roster-btn"
               className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-colors shadow-xs"
             >
               <FileSpreadsheet className="w-4 h-4" />
@@ -121,6 +123,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
             <button
               onClick={onOpenClassSetup}
+              data-tour="tour-new-class-btn"
               className="flex items-center space-x-1 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition-colors border border-blue-200"
             >
               <PlusCircle className="w-4 h-4" />
@@ -129,6 +132,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
             <button
               onClick={onOpenRosterUpload}
+              data-tour="tour-roster-btn"
               className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-colors border border-emerald-200"
             >
               <FileSpreadsheet className="w-4 h-4" />
@@ -149,7 +153,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
         {/* 대형 수업코드 및 인쇄 버튼 */}
         <div className="flex items-center space-x-4">
-          <div className="bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-2xl flex items-center space-x-3">
+          <div data-tour="tour-code-card" className="bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-2xl flex items-center space-x-3">
             <div>
               <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
                 학급 고정 수업코드
@@ -169,6 +173,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
           <button
             onClick={onGoToPrint}
+            data-tour="tour-print-btn"
             className="flex items-center space-x-1.5 px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-semibold transition-colors shadow-xs"
           >
             <Printer className="w-4 h-4" />
@@ -178,7 +183,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       </div>
 
       {/* 3단 다차원 필터링 바 (날짜, 학생, 단원, 검색어) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+      <div data-tour="tour-filter-bar" className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
         <div className="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
           <Sparkles className="w-4 h-4 text-blue-600" />
           <span>다차원 조건 필터링 (생기부 과세특 및 수업 분석)</span>

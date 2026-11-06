@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* 중앙 모드 전환 탭 */}
-        <nav className="flex items-center space-x-1 sm:space-x-2 bg-slate-100 p-1 rounded-xl">
+        <nav data-tour="tour-role-nav" className="flex items-center space-x-1 sm:space-x-2 bg-slate-100 p-1 rounded-xl">
           <button
             onClick={() => onSelectRole("student")}
             className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
@@ -72,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* 사용법 버튼 */}
           <button
             type="button"
+            data-tour="tour-guide-btn"
             onClick={onOpenTour}
             className="flex items-center space-x-1 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-colors shadow-xs"
             title="사용 방법 가이드 열기"

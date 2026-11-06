@@ -67,8 +67,9 @@ export default function Home() {
     const existingSession = authEngine.getCurrentSession();
     if (existingSession) {
       setSession(existingSession);
-      if (existingSession.role === "teacher") {
-        setCurrentRole("teacher");
+      // 학생 세션은 유지하되, 교사 모드는 보안상 기본 학생 화면에서 시작하여 명시적 인증 후 진입하도록 설정
+      if (existingSession.role === "student") {
+        setCurrentRole("student");
       }
     }
   }, [refreshData]);
@@ -76,7 +77,7 @@ export default function Home() {
   // 역할 전환 핸들러 (교사 대시보드 진입 시 관리자 인증 검증)
   const handleSelectRole = (role: "student" | "teacher" | "print") => {
     if (role === "teacher") {
-      if (session && session.role === "teacher") {
+      if (session && session.role === "teacher" && session.isAdminAuthed) {
         setCurrentRole("teacher");
       } else {
         setIsTeacherAuthOpen(true);
@@ -86,12 +87,21 @@ export default function Home() {
     }
   };
 
-  // 교사 관리자 인증 성공 핸들러
+  // 교사 관리자 인증 성공 핸들러 (PIN 1234 확인 후 진입)
   const handleTeacherAuthSuccess = () => {
     const teacherSession = authEngine.loginAsTeacher("수학교사");
     setSession(teacherSession);
     setCurrentRole("teacher");
     setIsTeacherAuthOpen(false);
+  };
+
+  // 새 수업 개설 열기 핸들러 (관리자 인증 필수 가드)
+  const handleOpenClassSetup = () => {
+    if (!session || session.role !== "teacher" || !session.isAdminAuthed) {
+      setIsTeacherAuthOpen(true);
+      return;
+    }
+    setIsClassSetupOpen(true);
   };
 
   // 학생 로그인 핸들러
@@ -212,7 +222,7 @@ export default function Home() {
             allClasses={classes}
             entries={currentClassEntries}
             onSelectClass={(cls) => setActiveClass(cls)}
-            onOpenClassSetup={() => setIsClassSetupOpen(true)}
+            onOpenClassSetup={handleOpenClassSetup}
             onOpenRosterUpload={() => setIsRosterUploadOpen(true)}
             onGoToPrint={() => setCurrentRole("print")}
           />

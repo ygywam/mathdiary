@@ -22,6 +22,9 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
   const [selectedGradeId, setSelectedGradeId] = useState("high");
   const [selectedSubjectId, setSelectedSubjectId] = useState("common-math-1");
   const [className, setClassName] = useState("");
+  const [currentTeacherName, setCurrentTeacherName] = useState(
+    teacherName && teacherName !== "담당교사" && !teacherName.includes("박수학") ? teacherName : ""
+  );
   const [classCode, setClassCode] = useState(classCodeEngine.generateCode("MTH"));
 
   // 활성 단원 선택
@@ -50,11 +53,15 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
       alert("학급 또는 수업 이름을 입력해주세요.");
       return;
     }
+    if (!currentTeacherName.trim()) {
+      alert("담당 교사명을 입력해주세요.");
+      return;
+    }
 
     const newClass: ClassSession = {
       id: `cls_${Date.now()}`,
       teacherId: `tch_${Date.now()}`,
-      teacherName: teacherName || "수학교사",
+      teacherName: currentTeacherName.trim(),
       name: className.trim(),
       code: classCode.trim().toUpperCase(),
       grade: currentGrade?.name || "고등학교",
@@ -96,7 +103,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
         {/* 폼 본문 */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
           {/* 수업 기본 정보 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 학급 / 수업 이름
@@ -111,6 +118,19 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
             </div>
 
             <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                담당 교사명
+              </label>
+              <input
+                type="text"
+                value={currentTeacherName}
+                onChange={(e) => setCurrentTeacherName(e.target.value)}
+                placeholder=""
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
               <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
                 <span>학기 고정 수업코드</span>
                 <button
@@ -119,7 +139,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
                   className="text-[11px] text-blue-600 hover:underline flex items-center space-x-1"
                 >
                   <KeyRound className="w-3 h-3" />
-                  <span>새 코드 생성</span>
+                  <span>새 코드</span>
                 </button>
               </label>
               <input
