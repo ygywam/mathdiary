@@ -14,14 +14,16 @@ import {
   Check,
   Award,
   Sparkles,
+  FileSpreadsheet,
 } from "lucide-react";
 
 interface TeacherDashboardProps {
-  currentClass: ClassSession;
+  currentClass: ClassSession | null;
   allClasses: ClassSession[];
   entries: ReflectionEntry[];
   onSelectClass: (cls: ClassSession) => void;
   onOpenClassSetup: () => void;
+  onOpenRosterUpload: () => void;
   onGoToPrint: () => void;
 }
 
@@ -31,6 +33,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   entries,
   onSelectClass,
   onOpenClassSetup,
+  onOpenRosterUpload,
   onGoToPrint,
 }) => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -41,6 +44,44 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   });
 
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // 수업이 전혀 개설되지 않은 초기 상태 (Empty State)
+  if (!currentClass || allClasses.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-sm space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-slate-800">
+              아직 개설된 수학 수업이 없습니다
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+              선생님만의 새 수업을 개설하여 고유 수업코드를 발급하거나, 학생 명렬표 엑셀 파일을 업로드하여 수업과 학생 계정을 일괄 등록하세요.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              onClick={onOpenClassSetup}
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-sm font-semibold transition-colors shadow-xs"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>새 수학 수업 개설하기</span>
+            </button>
+            <button
+              onClick={onOpenRosterUpload}
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-semibold transition-colors shadow-xs"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>명렬표 엑셀 등록/다운로드</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // 필터링 적용된 일기 목록
   const filteredEntries = filterEngine.filterEntries(entries, filterOptions);
@@ -62,7 +103,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       {/* 상단 수업 현황 헤더 카드 */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap gap-y-2">
             <select
               value={currentClass.id}
               onChange={(e) => {
@@ -85,6 +126,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               <PlusCircle className="w-4 h-4" />
               <span>새 수업 개설</span>
             </button>
+
+            <button
+              onClick={onOpenRosterUpload}
+              className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-colors border border-emerald-200"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>명렬표 엑셀 등록/다운로드</span>
+            </button>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
@@ -98,9 +147,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           </div>
         </div>
 
-        {/* 대형 수업코드 및 통계 */}
+        {/* 대형 수업코드 및 인쇄 버튼 */}
         <div className="flex items-center space-x-4">
-          {/* 수업코드 카드 (프로젝터용 대형 표시) */}
           <div className="bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-2xl flex items-center space-x-3">
             <div>
               <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
@@ -119,7 +167,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </button>
           </div>
 
-          {/* 인쇄 바로가기 버튼 */}
           <button
             onClick={onGoToPrint}
             className="flex items-center space-x-1.5 px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-semibold transition-colors shadow-xs"
@@ -159,7 +206,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </select>
           </div>
 
-          {/* 2. 학생 필터 (생기부 작성용) */}
+          {/* 2. 학생 필터 */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               <User className="w-4 h-4" />
@@ -212,7 +259,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               onChange={(e) =>
                 setFilterOptions((prev) => ({ ...prev, searchQuery: e.target.value }))
               }
-              placeholder="학생명 또는 '판별식' 등 검색"
+              placeholder="학생명 또는 키워드 검색"
               className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -236,9 +283,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         {filteredEntries.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
             <BookOpen className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-            <h4 className="text-sm font-bold text-slate-700">해당 조건의 성찰 일기가 없습니다</h4>
+            <h4 className="text-sm font-bold text-slate-700">등록된 성찰 일기가 없습니다</h4>
             <p className="text-xs text-slate-500 mt-1">
-              필터 조건을 재설정하거나 학생들에게 수업코드({currentClass.code})를 공유해주세요.
+              학생들에게 수업코드({currentClass.code})를 안내하여 첫 성찰 일기 작성을 독려하세요.
             </p>
           </div>
         ) : (

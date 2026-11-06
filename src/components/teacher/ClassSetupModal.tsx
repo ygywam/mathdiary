@@ -21,7 +21,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
 }) => {
   const [selectedGradeId, setSelectedGradeId] = useState("high");
   const [selectedSubjectId, setSelectedSubjectId] = useState("common-math-1");
-  const [className, setClassName] = useState("고1-3반 수학");
+  const [className, setClassName] = useState("");
   const [classCode, setClassCode] = useState(classCodeEngine.generateCode("MTH"));
 
   // 활성 단원 선택
@@ -105,7 +105,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
                 type="text"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
-                placeholder="예: 2026 고1-3반 수학"
+                placeholder=""
                 className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
