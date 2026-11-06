@@ -155,20 +155,19 @@ export const ReflectionForm: React.FC<ReflectionFormProps> = ({
 
         {/* 하단 제출 및 상태 */}
         <div className="pt-2 flex items-center justify-end space-x-3">
-            {isSaved && (
-              <span className="flex items-center space-x-1 text-xs font-semibold text-emerald-600">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>성찰 일기 저장 완료!</span>
-              </span>
-            )}
-            <button
-              type="submit"
-              className="flex items-center space-x-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-xs"
-            >
-              <Send className="w-4 h-4" />
-              <span>성찰 일기 제출하기</span>
-            </button>
-          </div>
+          {isSaved && (
+            <span className="flex items-center space-x-1 text-xs font-semibold text-emerald-600">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>성찰 일기 저장 완료!</span>
+            </span>
+          )}
+          <button
+            type="submit"
+            className="flex items-center space-x-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-xs"
+          >
+            <Send className="w-4 h-4" />
+            <span>성찰 일기 제출하기</span>
+          </button>
         </div>
       </form>
     </div>
