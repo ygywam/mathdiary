@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>수학 수업 성찰 일기 - 배움과 성장을 기록하는 매일 5분 피드백</title>
-  <!-- Pretendard 한글 폰트 -->
+  <title>수학 수업 성찰 일기</title>
+  <!-- Pretendard 웹폰트 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase 공식 브라우저 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -15,15 +17,6 @@
           fontFamily: {
             sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
             mono: ['JetBrains Mono', 'Courier New', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#EFF6FF',
-              100: '#DBEAFE',
-              500: '#3B82F6',
-              600: '#2563EB',
-              700: '#1D4ED8',
-            }
           }
         }
       }
@@ -37,7 +30,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 줄노트 패턴 (수기 작성용 빈칸) */
+    /* 수기 작성용 줄노트 */
     .lined-paper {
       background-image: repeating-linear-gradient(
         transparent,
@@ -46,6 +39,35 @@
       );
       line-height: 25px;
       min-height: 75px;
+    }
+
+    /* 포스트잇 스타일 */
+    .post-it {
+      background: linear-gradient(135deg, #FEF08A 0%, #FDE047 100%);
+      box-shadow: 0 10px 25px -5px rgba(161, 98, 7, 0.3), 0 8px 10px -6px rgba(161, 98, 7, 0.2);
+      transform: rotate(-1deg);
+      position: relative;
+    }
+    .post-it::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 45px;
+      height: 14px;
+      background: rgba(254, 240, 138, 0.8);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 스포트라이트 하이라이트 박스 */
+    .spotlight-active {
+      position: relative !important;
+      z-index: 60 !important;
+      box-shadow: 0 0 0 4px #2563EB, 0 0 30px rgba(37, 99, 235, 0.5) !important;
+      border-radius: 16px !important;
+      background: #FFFFFF !important;
+      transition: all 0.3s ease;
     }
 
     /* A4 가로 2쪽(A5×2) 인쇄 전용 CSS */
@@ -96,29 +118,39 @@
           <h1 class="text-base sm:text-lg font-bold text-slate-800 tracking-tight leading-none">
             수학 수업 성찰 일기
           </h1>
-          <p className="text-[11px] text-slate-500 mt-1 font-medium">
+          <p class="text-[11px] text-slate-500 mt-1 font-medium">
             배움과 성장을 기록하는 매일 5분 피드백
           </p>
         </div>
       </div>
 
-      <!-- 역할 전환 탭 -->
-      <nav class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-        <button id="tab-student" onclick="switchRole('student')" class="px-3 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs">
+      <!-- 모드 전환 탭 -->
+      <nav id="tour-step-role-nav" class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+        <button id="tab-student" onclick="switchRole('student')" class="px-3.5 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs transition-colors">
           🧑‍🎓 학생 일기장
         </button>
-        <button id="tab-teacher" onclick="switchRole('teacher')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">
+        <button id="tab-teacher" onclick="switchRole('teacher')" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-colors">
           👨‍🏫 교사 대시보드
-        </button>
-        <button id="tab-print" onclick="switchRole('print')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">
-          🖨️ A4 가로 2쪽 인쇄
         </button>
       </nav>
 
-      <!-- 사용자 세션 상태 -->
-      <div id="user-session-badge" class="text-xs font-medium text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center space-x-2">
-        <span id="session-user-name">🧑‍🎓 김민준 (20315)</span>
-        <button onclick="handleLogout()" class="text-slate-400 hover:text-red-500 font-bold ml-1" title="로그아웃">✕</button>
+      <!-- 우측 버튼군: 수파베이스 클라우드 연결 & 사용법 버튼 & 세션 상태 -->
+      <div class="flex items-center space-x-2">
+        <!-- 수파베이스 클라우드 연결 배지/버튼 -->
+        <button onclick="openCloudModal()" id="btn-cloud-status" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-xs">
+          <span id="cloud-icon" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="cloud-text">수파베이스 설정</span>
+        </button>
+
+        <button onclick="startTour()" class="flex items-center space-x-1 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all shadow-xs">
+          <span>💡</span>
+          <span>사용법</span>
+        </button>
+
+        <div id="user-session-badge" class="text-xs font-medium text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+          <span id="session-user-name">로그인 필요</span>
+          <button id="btn-logout" onclick="handleLogout()" class="hidden text-slate-400 hover:text-red-500 font-bold ml-1" title="로그아웃">✕</button>
+        </div>
       </div>
     </div>
   </header>
@@ -128,139 +160,146 @@
 
     <!-- [1. 학생 일기장 뷰] -->
     <section id="view-student" class="space-y-6">
-      <!-- 학생 로그인 모달/카드 (로그아웃 시 노출) -->
-      <div id="student-login-box" class="hidden max-w-md mx-auto my-8 p-6 sm:p-8 bg-white rounded-2xl border border-slate-200 shadow-sm">
+      <!-- 학생 로그인 모달/카드 -->
+      <div id="student-login-box" class="max-w-md mx-auto my-8 p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-center mb-6">
-          <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 text-2xl">
+          <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 text-2xl font-bold">
             🔑
           </div>
-          <h2 class="text-xl font-bold text-slate-800">학생 간편 시작하기</h2>
-          <p class="text-xs text-slate-500 mt-1">개인정보 없이 학번과 4자리 PIN으로 안전하게 작성합니다.</p>
+          <h2 class="text-xl font-bold text-slate-800">학생 시작하기</h2>
+          <p class="text-xs text-slate-500 mt-1">선생님이 알려주신 수업코드와 학번으로 참여합니다.</p>
         </div>
+
         <form onsubmit="handleStudentLogin(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">수업코드 (선생님이 알려주신 코드)</label>
-            <input id="login-class-code" type="text" value="MTH-203" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-wider font-bold text-blue-700 uppercase" required>
+          <div id="tour-step-class-code">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">수업코드</label>
+            <input id="login-class-code" type="text" placeholder="예: MTH-203" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-wider font-bold text-blue-700 uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">학번 (5자리 권장)</label>
-            <input id="login-student-num" type="text" placeholder="예: 20315" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm" required>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">학번</label>
+            <input id="login-student-num" type="text" placeholder="예: 20315" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">이름 또는 닉네임 (선택)</label>
-            <input id="login-student-name" type="text" placeholder="예: 김민준" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">이름 또는 닉네임</label>
+            <input id="login-student-name" type="text" placeholder="예: 김민준" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">비밀번호 PIN (숫자 4자리)</label>
-            <input id="login-student-pin" type="password" maxlength="8" placeholder="••••" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-mono tracking-widest" required>
+            <input id="login-student-pin" type="password" maxlength="8" placeholder="••••" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500" required>
           </div>
-          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-xs transition-colors">
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-xs transition-colors">
             수업 입장 & 성찰 일기 쓰기 →
           </button>
         </form>
       </div>
 
-      <!-- 성찰 일기 작성 폼 (로그인 시 노출) -->
-      <div id="student-journal-box" class="max-w-2xl mx-auto space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <!-- 성찰 일기 작성 폼 (보조설명 및 예시 문구 완전 제거) -->
+      <div id="student-journal-box" class="hidden max-w-2xl mx-auto space-y-6">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
           <!-- 상단 단원 배너 -->
           <div class="bg-gradient-to-r from-blue-50 to-indigo-50/40 p-5 border-b border-blue-100">
             <div class="flex items-center justify-between">
-              <span id="active-class-title" class="text-xs font-semibold text-blue-700 bg-white px-2.5 py-1 rounded-md border border-blue-200 shadow-2xs">
-                고1-3반 수학 · 공통수학1
+              <span id="active-class-title" class="text-xs font-bold text-blue-700 bg-white px-2.5 py-1 rounded-md border border-blue-200 shadow-2xs">
+                수업 선택됨
               </span>
-              <span id="today-date-badge" class="text-xs font-medium text-slate-500">2026-11-04</span>
+              <span id="today-date-badge" class="text-xs font-medium text-slate-500"></span>
             </div>
-            <div class="mt-3">
-              <h2 id="active-major-title" class="text-lg font-bold text-slate-800 tracking-tight">
-                Ⅱ. 방정식과 부등식
-              </h2>
-              <p id="active-minor-title" class="text-sm font-semibold text-blue-600 mt-0.5">
-                1. 복소수와 이차방정식 · 이차방정식의 판별식 D와 실근·허근
-              </p>
+            <div class="mt-2.5">
+              <h2 id="active-major-title" class="text-base sm:text-lg font-bold text-slate-800 tracking-tight"></h2>
+              <p id="active-minor-title" class="text-xs sm:text-sm font-semibold text-blue-600 mt-0.5"></p>
             </div>
           </div>
 
           <!-- 자연스러운 4문항 폼 -->
           <form onsubmit="handleSaveEntry(event)" class="p-6 space-y-5">
-            <div>
+            <div id="tour-step-q1">
               <label class="block text-sm font-bold text-slate-800 flex items-center space-x-2 mb-2">
                 <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold">1</span>
                 <span>오늘 수업에서 다룬 핵심 개념이나 공식은 무엇인가요?</span>
               </label>
-              <textarea id="ans-concept" rows="3" placeholder="예: 이차방정식 ax²+bx+c=0의 실근과 허근을 판단하는 판별식 D=b²-4ac" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+              <textarea id="ans-concept" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
 
-            <div>
+            <div id="tour-step-q2">
               <label class="block text-sm font-bold text-slate-800 flex items-center space-x-2 mb-2">
                 <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold">2</span>
                 <span>내가 친구에게 쉽게 설명해 준다면 어떻게 말할 수 있을까요?</span>
               </label>
-              <textarea id="ans-explained" rows="3" placeholder="예: 근호 안의 숫자가 양수면 실근이 2개 생기고, 음수면 허수 단위 i가 생겨서 허근이 되는 원리야..." class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+              <textarea id="ans-explained" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
 
-            <div>
+            <div id="tour-step-q3">
               <label class="block text-sm font-bold text-slate-800 flex items-center space-x-2 mb-2">
                 <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold">3</span>
                 <span>오늘 새롭게 깨달았거나, 헷갈렸다가 풀린 부분은 무엇인가요?</span>
               </label>
-              <textarea id="ans-discovered" rows="3" placeholder="예: 계수 a, b, c가 반드시 실수일 때만 판별식으로 실근·허근을 따질 수 있다는 점을 알았다." class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <textarea id="ans-discovered" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
 
-            <div>
+            <div id="tour-step-q4">
               <label class="block text-sm font-bold text-slate-800 flex items-center space-x-2 mb-2">
                 <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-bold">4</span>
                 <span>더 확실히 내 것으로 만들기 위해 오늘 방과 후에 무엇을 해볼까요?</span>
               </label>
-              <textarea id="ans-plan" rows="3" placeholder="예: 교과서 78쪽 예제 3번과 판별식 활용 문제를 스스로 다시 풀어보기" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <textarea id="ans-plan" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
 
-            <div class="pt-2 flex items-center justify-between">
-              <span class="text-xs text-slate-500">🔒 작성 내용은 본인과 담당 선생님만 볼 수 있습니다.</span>
-              <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors shadow-xs">
-                성찰 일기 제출하기 ✨
+            <div class="pt-2 flex items-center justify-end">
+              <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-colors shadow-xs">
+                성찰 일기 제출하기
               </button>
             </div>
           </form>
         </div>
 
         <!-- 나의 성장 일기장 (본인 누적 보관함) -->
-        <div class="space-y-4 pt-4">
+        <div class="space-y-4 pt-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800">📖 나의 수학 성장 일기장</h3>
+            <h3 class="text-base font-bold text-slate-800">나의 수학 성장 일기장</h3>
             <span id="student-entry-count" class="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-              총 1편 기록됨
+              총 0편
             </span>
           </div>
-          <div id="student-entries-container" class="space-y-3">
-            <!-- 자바스크립트로 동적 렌더링 -->
-          </div>
+          <div id="student-entries-container" class="space-y-3"></div>
         </div>
       </div>
     </section>
 
     <!-- [2. 교사 대시보드 뷰] -->
     <section id="view-teacher" class="hidden space-y-6">
-      <!-- 교사 상단 카드 -->
+      <!-- 교사 상단 바 -->
       <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>
           <div class="flex items-center space-x-3">
-            <h2 class="text-xl font-bold text-slate-800">고1-3반 수학 (공통수학1)</h2>
-            <button onclick="openClassModal()" class="text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition-colors">
-              + 새 수업 개설 / 단원 변경
+            <select id="teacher-class-select" onchange="handleClassChange()" class="text-base sm:text-lg font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">개설된 수업 없음</option>
+            </select>
+            <button id="tour-step-create-class" onclick="openClassModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl border border-blue-200 transition-colors">
+              + 새 수업 개설
             </button>
           </div>
-          <p class="text-xs text-slate-500 mt-1">담당: 박수학 선생님 · 활성 단원: Ⅱ. 방정식과 부등식 &gt; 1. 복소수와 이차방정식</p>
+          <p id="teacher-class-meta" class="text-xs text-slate-500 mt-1.5">
+            새 수업을 개설하거나 엑셀 명렬표를 등록해주세요.
+          </p>
         </div>
 
-        <div class="flex items-center space-x-4">
-          <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-2xl flex items-center space-x-3">
+        <div class="flex items-center space-x-3">
+          <!-- 엑셀 명렬표 버튼 -->
+          <button id="tour-step-excel" onclick="openRosterModal()" class="flex items-center space-x-1.5 px-3.5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors">
+            <span>📋</span>
+            <span>명렬표 엑셀 등록/다운로드</span>
+          </button>
+
+          <!-- 수업코드 표시 카드 -->
+          <div id="teacher-code-badge" class="bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-2xl flex items-center space-x-2">
             <div>
               <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">학기 고정 수업코드</span>
-              <span class="text-2xl font-mono font-bold text-blue-800 tracking-widest">MTH-203</span>
+              <span id="teacher-code-text" class="text-xl font-mono font-bold text-blue-800 tracking-widest">-</span>
             </div>
           </div>
-          <button onclick="switchRole('print')" class="px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs font-bold transition-colors">
+
+          <!-- 인쇄 버튼 -->
+          <button id="tour-step-print-btn" onclick="openPrintView()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors shadow-xs">
             🖨️ A4 가로 2쪽 인쇄
           </button>
         </div>
@@ -268,38 +307,36 @@
 
       <!-- 3단 다차원 필터 바 -->
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-        <span class="text-xs font-bold text-slate-700 block">✨ 3단 다차원 필터링 (생기부 과세특 및 개별 학생 맞춤 지도)</span>
+        <span class="text-xs font-bold text-slate-700 block">3단 다차원 필터링</span>
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <select id="filter-date" onchange="applyTeacherFilter()" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
             <option value="all">모든 날짜</option>
-            <option value="2026-11-04">2026-11-04</option>
           </select>
           <select id="filter-student" onchange="applyTeacherFilter()" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
             <option value="all">전체 학생</option>
-            <option value="std_20315">20315 김민준</option>
-            <option value="std_20308">20308 이서연</option>
-            <option value="std_20321">20321 박도현</option>
           </select>
           <select id="filter-chapter" onchange="applyTeacherFilter()" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
             <option value="all">모든 단원</option>
-            <option value="Ⅱ. 방정식과 부등식">Ⅱ. 방정식과 부등식</option>
           </select>
           <input id="filter-search" type="text" oninput="applyTeacherFilter()" placeholder="학생명 또는 키워드 검색" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
         </div>
       </div>
 
       <!-- 일기 목록 카드 그리드 -->
-      <div id="teacher-entries-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- 자바스크립트로 동적 렌더링 -->
-      </div>
+      <div id="teacher-entries-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
     <!-- [3. A4 가로 2쪽(A5×2) 인쇄 뷰] -->
     <section id="view-print" class="hidden space-y-6">
       <div class="no-print bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 class="text-base font-bold text-slate-800">🖨️ A4 가로 2쪽(A5×2) 규격 인쇄 미리보기</h2>
-          <p class="text-xs text-slate-500 mt-0.5">A4 가로 1장에 2쪽씩 나란히 배치되어 포트폴리오 바인더 철에 최적화되어 있습니다.</p>
+        <div class="flex items-center space-x-3">
+          <button onclick="switchRole('teacher')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg">
+            ← 교사 대시보드로 돌아가기
+          </button>
+          <div>
+            <h2 class="text-base font-bold text-slate-800">A4 가로 2쪽(A5×2) 규격 인쇄 미리보기</h2>
+            <p class="text-xs text-slate-500">A4 가로 1장에 2쪽씩 나란히 배치되어 바인더 철에 최적화되어 있습니다.</p>
+          </div>
         </div>
         <div class="flex items-center space-x-3">
           <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
@@ -317,246 +354,490 @@
       </div>
 
       <!-- 인쇄 시트 컨테이너 -->
-      <div id="print-sheet-container" class="max-w-[297mm] mx-auto space-y-6 print:space-y-0">
-        <!-- 자바스크립트로 A4 가로 1장당 A5 2매씩 분할 렌더링 -->
-      </div>
+      <div id="print-sheet-container" class="max-w-[297mm] mx-auto space-y-6 print:space-y-0"></div>
     </section>
 
   </main>
 
-  <!-- 새 수업 개설 모달 -->
+  <!-- [수파베이스 클라우드 연결 설정 모달] -->
+  <div id="modal-cloud" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-2">
+          <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-sm">⚡</span>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">수파베이스(Supabase) 클라우드 연결</h3>
+            <p class="text-[11px] text-slate-500">설정 시 학생들의 스마트폰과 교사 PC가 실시간 영구 연동됩니다.</p>
+          </div>
+        </div>
+        <button onclick="closeCloudModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveCloudConfig(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">
+            1. Project URL (프로젝트 주소)
+          </label>
+          <input id="input-supabase-url" type="url" placeholder="https://xyzcompany.supabase.co" class="w-full p-2.5 border border-slate-300 rounded-xl font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">
+            2. Anon Public API Key (공개 익명 키)
+          </label>
+          <input id="input-supabase-key" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full p-2.5 border border-slate-300 rounded-xl font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+          <p class="text-[10.5px] text-slate-400 mt-1">
+            * Supabase 대시보드 &gt; Project Settings &gt; API 에서 확인하실 수 있습니다.
+          </p>
+        </div>
+
+        <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-[11px] text-emerald-900 leading-relaxed">
+          💡 <strong>테이블 자동 준비 팁:</strong> Supabase의 SQL Editor에 저희 프로젝트의 <code class="bg-emerald-200/60 px-1 py-0.5 rounded font-mono">docs/supabase_schema.sql</code> 쿼리를 붙여넣고 [RUN]을 실행해두시면 즉시 연동됩니다.
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="handleClearCloudConfig()" class="text-red-500 hover:underline text-[11px]">
+            연결 해제 (로컬 모드로 전환)
+          </button>
+          <div class="flex space-x-2">
+            <button type="button" onclick="closeCloudModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl">취소</button>
+            <button type="submit" class="px-5 py-2 font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs">클라우드 연결 저장</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- [스포트라이트 사용법 투어 오버레이 및 포스트잇] -->
+  <div id="tour-overlay" class="hidden fixed inset-0 z-50 pointer-events-none transition-opacity duration-300">
+    <div class="absolute inset-0 bg-slate-950/70 pointer-events-auto"></div>
+
+    <div id="tour-post-it" class="absolute z-70 pointer-events-auto w-80 sm:w-96 p-5 post-it rounded-2xl text-slate-900 transition-all duration-300" style="top: 120px; left: 50%; transform: translateX(-50%);">
+      <div class="flex items-center justify-between pb-2 border-b border-amber-300/80 mb-3">
+        <span id="tour-step-badge" class="text-[11px] font-bold text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded-md">
+          사용법 1 / 4
+        </span>
+        <button onclick="endTour()" class="text-amber-900 hover:text-black font-extrabold text-sm">✕</button>
+      </div>
+
+      <h4 id="tour-title" class="text-base font-extrabold text-amber-950 mb-1.5"></h4>
+      <p id="tour-description" class="text-xs leading-relaxed text-amber-900 mb-4 whitespace-pre-line"></p>
+
+      <div class="flex items-center justify-between pt-1">
+        <button id="tour-btn-prev" onclick="prevTourStep()" class="text-xs font-bold text-amber-800 hover:text-black px-2 py-1">
+          ← 이전
+        </button>
+        <div class="flex items-center space-x-2">
+          <button onclick="endTour()" class="text-xs text-amber-800 hover:underline">
+            건너뛰기
+          </button>
+          <button id="tour-btn-next" onclick="nextTourStep()" class="px-4 py-1.5 bg-amber-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs">
+            다음 →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- [새 수업 개설 모달] -->
   <div id="modal-class-setup" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
     <div class="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-base font-bold text-slate-800">✨ 새 수업 개설 & 2022 개정 수학 단원 1클릭 완성</h3>
+        <h3 class="text-base font-bold text-slate-800">새 수업 개설 & 교육과정 단원 자동완성</h3>
         <button onclick="closeClassModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs">
+      <form onsubmit="handleSaveClass(event)" class="space-y-3 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">학급 / 수업 이름</label>
-          <input id="modal-class-name" type="text" value="2026 고1-3반 수학" class="w-full p-2 border border-slate-300 rounded-xl">
+          <input id="modal-class-name" type="text" placeholder="예: 2학년 3반 수학" class="w-full p-2.5 border border-slate-300 rounded-xl" required>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">교사 이름</label>
+            <input id="modal-class-teacher" type="text" placeholder="예: 홍길동 선생님" class="w-full p-2.5 border border-slate-300 rounded-xl" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">과목명</label>
+            <input id="modal-class-subject" type="text" placeholder="예: 공통수학1" class="w-full p-2.5 border border-slate-300 rounded-xl" required>
+          </div>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">고정 수업코드</label>
-          <input id="modal-class-code" type="text" value="MTH-203" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl font-mono font-bold text-blue-700 uppercase">
+          <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+            <span>고정 수업코드 (자동 생성)</span>
+            <button type="button" onclick="generateNewModalCode()" class="text-blue-600 hover:underline text-[11px]">새 코드 발급</button>
+          </label>
+          <input id="modal-class-code" type="text" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono font-bold text-blue-700 uppercase" required>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">2022 개정 교육과정 단원 1클릭 선택</label>
-          <div class="border border-slate-200 rounded-xl p-2.5 max-h-40 overflow-y-auto space-y-1.5 bg-slate-50">
-            <button type="button" onclick="selectCurriculum('Ⅰ. 다항식', '1. 다항식의 연산', '다항식의 나눗셈과 조립제법')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
-              • [공통수학1] Ⅰ. 다항식 &gt; 1. 다항식의 연산 &gt; 조립제법
+          <label class="block font-bold text-slate-700 mb-1">단원 1클릭 선택 (2022 개정 수학과)</label>
+          <div class="border border-slate-200 rounded-xl p-2.5 max-h-36 overflow-y-auto space-y-1.5 bg-slate-50">
+            <button type="button" onclick="selectCurriculum('Ⅰ. 다항식', '1. 다항식의 연산', '다항식의 사칙연산과 조립제법')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
+              • [공통수학1] Ⅰ. 다항식 &gt; 1. 다항식의 연산
             </button>
-            <button type="button" onclick="selectCurriculum('Ⅱ. 방정식과 부등식', '1. 복소수와 이차방정식', '이차방정식의 판별식 D와 실근·허근')" class="w-full text-left p-1.5 bg-blue-50 text-blue-700 font-bold rounded border border-blue-200">
-              ✓ [공통수학1] Ⅱ. 방정식과 부등식 &gt; 1. 복소수와 이차방정식 &gt; 판별식 D
+            <button type="button" onclick="selectCurriculum('Ⅱ. 방정식과 부등식', '1. 복소수와 이차방정식', '이차방정식의 판별식 D와 실근·허근')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
+              • [공통수학1] Ⅱ. 방정식과 부등식 &gt; 1. 복소수와 이차방정식 (판별식 D)
             </button>
-            <button type="button" onclick="selectCurriculum('Ⅱ. 방정식과 부등식', '2. 이차방정식과 이차함수', '이차함수의 최대·최소')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
-              • [공통수학1] Ⅱ. 방정식과 부등식 &gt; 2. 이차방정식과 이차함수 &gt; 최대·최소
+            <button type="button" onclick="selectCurriculum('Ⅱ. 방정식과 부등식', '2. 이차방정식과 이차함수', '이차함수의 그래프와 최대·최소')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
+              • [공통수학1] Ⅱ. 방정식과 부등식 &gt; 2. 이차방정식과 이차함수
             </button>
-            <button type="button" onclick="selectCurriculum('Ⅰ. 지수함수와 로그함수', '1. 지수와 로그', '로그의 밑변환 공식')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
-              • [대수] Ⅰ. 지수함수와 로그함수 &gt; 1. 지수와 로그 &gt; 밑변환 공식
+            <button type="button" onclick="selectCurriculum('Ⅰ. 지수함수와 로그함수', '1. 지수와 로그', '로그의 성질과 밑변환 공식')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
+              • [대수] Ⅰ. 지수함수와 로그함수 &gt; 1. 지수와 로그
             </button>
             <button type="button" onclick="selectCurriculum('Ⅱ. 삼각함수', '1. 삼각함수', '사인법칙과 코사인법칙')" class="w-full text-left p-1.5 hover:bg-white rounded text-slate-700 border border-transparent hover:border-slate-200">
-              • [대수] Ⅱ. 삼각함수 &gt; 1. 삼각함수 &gt; 사인법칙과 코사인법칙
+              • [대수] Ⅱ. 삼각함수 &gt; 1. 삼각함수
             </button>
           </div>
         </div>
         <div class="p-2.5 bg-blue-50 border border-blue-100 rounded-xl">
-          <span id="modal-selected-summary" class="text-blue-900 font-bold block">선택: Ⅱ. 방정식과 부등식 &gt; 1. 복소수와 이차방정식 &gt; 판별식 D</span>
+          <span id="modal-selected-summary" class="text-blue-900 font-bold block">단원을 선택해주세요.</span>
         </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeClassModal()" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-xl">취소</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl">수업 생성 완료</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- [명렬표 엑셀 업로드 및 기본 서식 다운로드 모달] -->
+  <div id="modal-roster" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-800">📋 학생·교사 명렬표 엑셀 등록</h3>
+        <button onclick="closeRosterModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
       </div>
 
-      <div class="flex justify-end space-x-2 pt-2">
-        <button onclick="closeClassModal()" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-xl">취소</button>
-        <button onclick="saveClassModal()" class="px-5 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl">저장 완료</button>
+      <div class="space-y-4 text-xs">
+        <!-- 1단계: 기본 엑셀 양식 다운로드 -->
+        <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-2">
+          <div class="flex items-center space-x-2">
+            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[11px]">1</span>
+            <strong class="text-emerald-900 text-sm">기본 엑셀(CSV) 양식 다운로드</strong>
+          </div>
+          <p class="text-emerald-800 text-[11px] leading-relaxed">
+            학번, 이름, 학급명, 담당교사명, 과목, 초기PIN(비밀번호) 컬럼이 포함된 표준 양식 파일입니다.
+          </p>
+          <button type="button" onclick="downloadRosterTemplate()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-colors shadow-xs">
+            📄 기본 명렬표 양식 다운로드 (.csv)
+          </button>
+        </div>
+
+        <!-- 2단계: 파일 업로드 -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+          <div class="flex items-center space-x-2">
+            <span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px]">2</span>
+            <strong class="text-slate-900 text-sm">작성한 엑셀 파일 업로드</strong>
+          </div>
+          <p class="text-slate-600 text-[11px]">
+            작성하신 CSV 파일을 선택하시면 브라우저에 학생 명렬표와 수업이 즉시 등록됩니다.
+          </p>
+          <input type="file" id="roster-file-input" accept=".csv" onchange="handleRosterFileUpload(event)" class="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs">
+        </div>
+
+        <div id="roster-status-msg" class="hidden p-3 bg-blue-50 text-blue-700 rounded-xl font-medium text-xs"></div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeRosterModal()" class="px-5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl">닫기</button>
       </div>
     </div>
   </div>
 
   <!-- 자바스크립트 앱 로직 -->
   <script>
+    // 로컬 스토리지 키
+    const STORAGE_KEY_CLASSES = 'math_journal_classes_v2';
+    const STORAGE_KEY_ENTRIES = 'math_journal_entries_v2';
+    const STORAGE_KEY_STUDENTS = 'math_journal_students_v2';
+    const STORAGE_KEY_SUPABASE_URL = 'math_journal_supabase_url';
+    const STORAGE_KEY_SUPABASE_KEY = 'math_journal_supabase_key';
+
     // 상태 데이터
+    let classes = JSON.parse(localStorage.getItem(STORAGE_KEY_CLASSES) || '[]');
+    let entries = JSON.parse(localStorage.getItem(STORAGE_KEY_ENTRIES) || '[]');
+    let students = JSON.parse(localStorage.getItem(STORAGE_KEY_STUDENTS) || '[]');
+
     let currentRole = 'student';
+    let currentSession = null;
+    let selectedClassId = classes.length > 0 ? classes[0].id : null;
     let printMode = 'filled';
-    let currentSession = {
-      role: 'student',
-      studentNumber: '20315',
-      name: '김민준',
-      userId: 'std_20315'
-    };
 
-    let currentClass = {
-      name: '고1-3반 수학',
-      subject: '공통수학1',
-      teacher: '박수학 선생님',
-      code: 'MTH-203',
-      major: 'Ⅱ. 방정식과 부등식',
-      minor: '1. 복소수와 이차방정식',
-      topic: '이차방정식의 판별식 D와 실근·허근'
-    };
+    // 수파베이스 클라이언트 인스턴스
+    let supabaseClient = null;
 
-    let entries = [
-      {
-        id: 'ent_1',
-        studentNumber: '20315',
-        studentName: '김민준',
-        studentId: 'std_20315',
-        date: '2026-11-04',
-        subject: '공통수학1',
-        teacher: '박수학 선생님',
-        className: '고1-3반 수학',
-        chapter: { major: 'Ⅱ. 방정식과 부등식', minor: '1. 복소수와 이차방정식', topic: '이차방정식의 판별식 D와 실근·허근' },
-        concept: '이차방정식 ax²+bx+c=0에서 근의 개수를 조사하는 판별식 D=b²-4ac를 배웠습니다.',
-        explained: '판별식 D가 0보다 크면 서로 다른 두 실근, 0이면 중근, 0보다 작으면 서로 다른 두 허근을 갖는다는 뜻입니다.',
-        discovered: '계수 a, b, c가 반드시 실수일 때만 판별식으로 실근·허근을 따질 수 있다는 점을 새롭게 알았습니다.',
-        plan: '교과서 78쪽 예제 3번과 판별식 활용 문제를 스스로 다시 풀어보겠습니다.'
-      },
-      {
-        id: 'ent_2',
-        studentNumber: '20308',
-        studentName: '이서연',
-        studentId: 'std_20308',
-        date: '2026-11-04',
-        subject: '공통수학1',
-        teacher: '박수학 선생님',
-        className: '고1-3반 수학',
-        chapter: { major: 'Ⅱ. 방정식과 부등식', minor: '1. 복소수와 이차방정식', topic: '이차방정식의 판별식 D와 실근·허근' },
-        concept: '짝수 공식 판별식 D/4 = b\'²-ac 공식과 그 증명 과정.',
-        explained: 'x의 계수가 짝수일 때는 b를 2로 나눈 b\'을 제곱하고 ac를 빼주면 숫자가 훨씬 작아져서 계산 실수가 줄어듭니다.',
-        discovered: '중근도 실근에 포함되기 때문에 실근을 가질 조건은 D≥0이어야 한다는 점을 헷갈렸다가 바로잡았습니다.',
-        plan: '중근 조건 문제와 오답노트에 적힌 문제 2개를 복습하겠습니다.'
-      },
-      {
-        id: 'ent_3',
-        studentNumber: '20321',
-        studentName: '박도현',
-        studentId: 'std_20321',
-        date: '2026-11-04',
-        subject: '공통수학1',
-        teacher: '박수학 선생님',
-        className: '고1-3반 수학',
-        chapter: { major: 'Ⅱ. 방정식과 부등식', minor: '1. 복소수와 이차방정식', topic: '이차방정식의 판별식 D와 실근·허근' },
-        concept: '근호 안의 식이 판별식 D라는 점과 근의 공식의 구조적 원리.',
-        explained: '루트 안이 양수면 숫자가 2개 생기고, 0이면 ±0이라서 1개만 남고, 음수면 허수 i가 나와서 허근이 됩니다.',
-        discovered: '허근을 가질 때 두 허근은 항상 서로 켤레복소수 관계라는 점이 신기했습니다.',
-        plan: '오늘 배운 판별식 D 공식을 빈 종이에 적어보고 확인하겠습니다.'
+    // 수파베이스 초기화
+    function initSupabase() {
+      const savedUrl = localStorage.getItem(STORAGE_KEY_SUPABASE_URL);
+      const savedKey = localStorage.getItem(STORAGE_KEY_SUPABASE_KEY);
+
+      if (savedUrl && savedKey && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+          document.getElementById('cloud-icon').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+          document.getElementById('cloud-text').innerText = '클라우드 연동됨';
+          document.getElementById('btn-cloud-status').className = 'flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-xs';
+          // 클라우드에서 최신 데이터 비동기 동기화
+          syncFromSupabase();
+        } catch (err) {
+          console.error('Supabase init error:', err);
+        }
+      } else {
+        document.getElementById('cloud-icon').className = 'w-2 h-2 rounded-full bg-slate-400';
+        document.getElementById('cloud-text').innerText = '로컬 모드 (연결 설정)';
+        document.getElementById('btn-cloud-status').className = 'flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all';
       }
-    ];
+    }
 
-    // 역할 전환
+    // 수파베이스로부터 데이터 동기화
+    async function syncFromSupabase() {
+      if (!supabaseClient) return;
+      try {
+        // 수업 로드
+        const { data: clsData } = await supabaseClient.from('classes').select('*');
+        if (clsData && clsData.length > 0) {
+          classes = clsData.map(c => ({
+            id: c.id,
+            name: c.name,
+            teacher: c.teacher,
+            subject: c.subject,
+            code: c.code,
+            activeChapter: c.active_chapter || {}
+          }));
+          localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+          if (!selectedClassId && classes.length > 0) selectedClassId = classes[0].id;
+        }
+
+        // 일기 로드
+        const { data: entryData } = await supabaseClient.from('reflection_entries').select('*').order('created_at', { ascending: false });
+        if (entryData) {
+          entries = entryData.map(e => ({
+            id: e.id,
+            studentNumber: e.student_number,
+            studentName: e.student_name,
+            date: e.date,
+            subject: e.subject,
+            teacher: e.teacher,
+            className: e.class_name,
+            chapter: e.chapter || {},
+            concept: e.concept,
+            explained: e.explained,
+            discovered: e.discovered,
+            plan: e.plan
+          }));
+          localStorage.setItem(STORAGE_KEY_ENTRIES, JSON.stringify(entries));
+        }
+
+        if (currentRole === 'teacher') renderTeacherView();
+        else if (currentRole === 'student') renderStudentView();
+      } catch (err) {
+        console.warn('Supabase fetch error:', err);
+      }
+    }
+
+    // 모달 제어 (클라우드 설정)
+    function openCloudModal() {
+      document.getElementById('input-supabase-url').value = localStorage.getItem(STORAGE_KEY_SUPABASE_URL) || '';
+      document.getElementById('input-supabase-key').value = localStorage.getItem(STORAGE_KEY_SUPABASE_KEY) || '';
+      document.getElementById('modal-cloud').classList.remove('hidden');
+    }
+    function closeCloudModal() {
+      document.getElementById('modal-cloud').classList.add('hidden');
+    }
+    function handleSaveCloudConfig(e) {
+      e.preventDefault();
+      const url = document.getElementById('input-supabase-url').value.trim();
+      const key = document.getElementById('input-supabase-key').value.trim();
+      if (!url || !key) return;
+
+      localStorage.setItem(STORAGE_KEY_SUPABASE_URL, url);
+      localStorage.setItem(STORAGE_KEY_SUPABASE_KEY, key);
+      closeCloudModal();
+      initSupabase();
+      alert('수파베이스 클라우드가 연결되었습니다!\n이제 스마트폰과 교사 PC의 데이터가 영구 보존 및 실시간 동기화됩니다.');
+    }
+    function handleClearCloudConfig() {
+      localStorage.removeItem(STORAGE_KEY_SUPABASE_URL);
+      localStorage.removeItem(STORAGE_KEY_SUPABASE_KEY);
+      supabaseClient = null;
+      closeCloudModal();
+      initSupabase();
+      alert('클라우드 연결이 해제되어 브라우저 로컬 모드로 전환되었습니다.');
+    }
+
+    // 모달 선택 단원 임시 상태
+    let modalCurriculum = { major: '', minor: '', topic: '' };
+
+    function generateCode() {
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      let rand = '';
+      for (let i = 0; i < 3; i++) {
+        rand += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return `MTH-${rand}`;
+    }
+
+    function getTodayString() {
+      const now = new Date();
+      return now.toISOString().split('T')[0];
+    }
+    document.getElementById('today-date-badge').innerText = getTodayString();
+
     function switchRole(role) {
       currentRole = role;
       document.getElementById('view-student').classList.add('hidden');
       document.getElementById('view-teacher').classList.add('hidden');
       document.getElementById('view-print').classList.add('hidden');
 
-      document.getElementById('tab-student').className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
-      document.getElementById('tab-teacher').className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
-      document.getElementById('tab-print').className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+      document.getElementById('tab-student').className = 'px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-colors';
+      document.getElementById('tab-teacher').className = 'px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-colors';
 
       if (role === 'student') {
         document.getElementById('view-student').classList.remove('hidden');
-        document.getElementById('tab-student').className = 'px-3 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs';
+        document.getElementById('tab-student').className = 'px-3.5 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs transition-colors';
         renderStudentView();
       } else if (role === 'teacher') {
         document.getElementById('view-teacher').classList.remove('hidden');
-        document.getElementById('tab-teacher').className = 'px-3 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs';
-        applyTeacherFilter();
+        document.getElementById('tab-teacher').className = 'px-3.5 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs transition-colors';
+        renderTeacherView();
       } else if (role === 'print') {
         document.getElementById('view-print').classList.remove('hidden');
-        document.getElementById('tab-print').className = 'px-3 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs';
         renderPrintView();
       }
     }
 
-    // 학생 뷰 렌더링
     function renderStudentView() {
       const loginBox = document.getElementById('student-login-box');
       const journalBox = document.getElementById('student-journal-box');
       const sessionBadge = document.getElementById('session-user-name');
+      const logoutBtn = document.getElementById('btn-logout');
 
-      if (!currentSession) {
+      if (!currentSession || currentSession.role !== 'student') {
         loginBox.classList.remove('hidden');
         journalBox.classList.add('hidden');
         sessionBadge.innerText = '로그인 필요';
+        logoutBtn.classList.add('hidden');
         return;
       }
 
       loginBox.classList.add('hidden');
       journalBox.classList.remove('hidden');
       sessionBadge.innerText = `🧑‍🎓 ${currentSession.name} (${currentSession.studentNumber})`;
+      logoutBtn.classList.remove('hidden');
 
-      // 학생 본인 글만 필터링 (RLS 격리)
-      const myEntries = entries.filter(e => e.studentId === currentSession.userId);
-      document.getElementById('student-entry-count').innerText = `총 ${myEntries.length}편 기록됨`;
+      const activeCls = classes.find(c => c.id === currentSession.classId);
+      if (activeCls) {
+        document.getElementById('active-class-title').innerText = `${activeCls.name} · ${activeCls.subject}`;
+        document.getElementById('active-major-title').innerText = activeCls.activeChapter.major || '수업 단원 정보';
+        document.getElementById('active-minor-title').innerText = `${activeCls.activeChapter.minor} ${activeCls.activeChapter.topic ? '· ' + activeCls.activeChapter.topic : ''}`;
+      } else {
+        document.getElementById('active-class-title').innerText = '참여 수업';
+        document.getElementById('active-major-title').innerText = '수업 단원 미지정';
+        document.getElementById('active-minor-title').innerText = '선생님이 단원을 지정하면 여기에 표시됩니다.';
+      }
+
+      const myEntries = entries.filter(e => e.studentNumber === currentSession.studentNumber);
+      document.getElementById('student-entry-count').innerText = `총 ${myEntries.length}편`;
 
       const container = document.getElementById('student-entries-container');
       if (myEntries.length === 0) {
-        container.innerHTML = '<div class="p-6 bg-white rounded-xl border border-dashed border-slate-300 text-center text-xs text-slate-400">작성된 성찰 일기가 없습니다.</div>';
+        container.innerHTML = '<div class="p-8 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">작성된 성찰 일기가 없습니다. 오늘 수업의 배움을 기록해보세요.</div>';
         return;
       }
 
       container.innerHTML = myEntries.map(e => `
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2 text-xs">
           <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-            <span class="font-bold text-blue-600">${e.chapter.major} &gt; ${e.chapter.minor}</span>
+            <span class="font-bold text-blue-600">${e.chapter.major} ${e.chapter.minor ? '&gt; ' + e.chapter.minor : ''}</span>
             <span class="text-slate-400">${e.date}</span>
           </div>
-          <div class="bg-slate-50 p-2.5 rounded-lg">
+          <div class="bg-slate-50 p-2.5 rounded-xl">
             <strong class="text-slate-700 block mb-0.5">1. 배운 개념:</strong>
-            <p class="text-slate-800">${e.concept}</p>
+            <p class="text-slate-800 leading-relaxed">${e.concept}</p>
           </div>
-          <div class="bg-slate-50 p-2.5 rounded-lg">
+          <div class="bg-slate-50 p-2.5 rounded-xl">
             <strong class="text-slate-700 block mb-0.5">2. 친구에게 설명하기:</strong>
-            <p class="text-slate-800">${e.explained}</p>
+            <p class="text-slate-800 leading-relaxed">${e.explained}</p>
           </div>
-          <div class="bg-amber-50/60 p-2.5 rounded-lg border border-amber-100">
+          <div class="bg-amber-50/70 p-2.5 rounded-xl border border-amber-100">
             <strong class="text-amber-800 block mb-0.5">3. 새롭게 알게 된 점 / 풀린 점:</strong>
-            <p class="text-amber-950">${e.discovered || '(미입력)'}</p>
+            <p class="text-amber-950 leading-relaxed">${e.discovered || '(미입력)'}</p>
           </div>
-          <div class="bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
+          <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-100">
             <strong class="text-blue-800 block mb-0.5">4. 앞으로의 계획:</strong>
-            <p class="text-blue-950">${e.plan || '(미입력)'}</p>
+            <p class="text-blue-950 leading-relaxed">${e.plan || '(미입력)'}</p>
           </div>
         </div>
       `).join('');
     }
 
-    // 학생 로그인 핸들러
-    function handleStudentLogin(e) {
+    async function handleStudentLogin(e) {
       e.preventDefault();
-      const num = document.getElementById('login-student-num').value.trim();
-      const name = document.getElementById('login-student-name').value.trim() || `${num} 학생`;
+      const codeInput = document.getElementById('login-class-code').value.trim().toUpperCase();
+      const numInput = document.getElementById('login-student-num').value.trim();
+      const nameInput = document.getElementById('login-student-name').value.trim() || `${numInput} 학생`;
+      const pinInput = document.getElementById('login-student-pin').value.trim();
+
+      let matchedClass = classes.find(c => c.code === codeInput);
+      if (!matchedClass) {
+        matchedClass = {
+          id: `cls_${Date.now()}`,
+          name: '개설된 수학 수업',
+          teacher: '담당 교사',
+          subject: '수학',
+          code: codeInput,
+          activeChapter: { major: '오늘의 학습 단원', minor: '핵심 개념', topic: '' }
+        };
+        classes.push(matchedClass);
+        localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+
+        if (supabaseClient) {
+          try {
+            await supabaseClient.from('classes').insert({
+              name: matchedClass.name,
+              teacher: matchedClass.teacher,
+              subject: matchedClass.subject,
+              code: matchedClass.code,
+              active_chapter: matchedClass.activeChapter
+            });
+          } catch (err) {
+            console.error('Supabase class insert error:', err);
+          }
+        }
+      }
+
       currentSession = {
         role: 'student',
-        studentNumber: num,
-        name: name,
-        userId: `std_${num}`
+        studentNumber: numInput,
+        name: nameInput,
+        pin: pinInput,
+        classId: matchedClass.id
       };
+
       renderStudentView();
     }
 
-    // 로그아웃
-    function handleLogout() {
-      currentSession = null;
-      renderStudentView();
-    }
-
-    // 성찰 일기 제출
-    function handleSaveEntry(e) {
+    async function handleSaveEntry(e) {
       e.preventDefault();
       if (!currentSession) return;
+
+      const activeCls = classes.find(c => c.id === currentSession.classId) || {
+        name: '수학 수업',
+        subject: '수학',
+        teacher: '선생님',
+        activeChapter: { major: '기본 단원', minor: '', topic: '' }
+      };
 
       const newEntry = {
         id: `ent_${Date.now()}`,
         studentNumber: currentSession.studentNumber,
         studentName: currentSession.name,
-        studentId: currentSession.userId,
-        date: '2026-11-04',
-        subject: currentClass.subject,
-        teacher: currentClass.teacher,
-        className: currentClass.name,
-        chapter: { major: currentClass.major, minor: currentClass.minor, topic: currentClass.topic },
+        date: getTodayString(),
+        subject: activeCls.subject,
+        teacher: activeCls.teacher,
+        className: activeCls.name,
+        chapter: activeCls.activeChapter,
         concept: document.getElementById('ans-concept').value,
         explained: document.getElementById('ans-explained').value,
         discovered: document.getElementById('ans-discovered').value,
@@ -564,7 +845,30 @@
       };
 
       entries.unshift(newEntry);
-      alert('성찰 일기가 성공적으로 저장되었습니다! 나의 일기장에서 확인하세요.');
+      localStorage.setItem(STORAGE_KEY_ENTRIES, JSON.stringify(entries));
+
+      // 수파베이스 실시간 전송
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('reflection_entries').insert({
+            student_number: newEntry.studentNumber,
+            student_name: newEntry.studentName,
+            date: newEntry.date,
+            subject: newEntry.subject,
+            teacher: newEntry.teacher,
+            class_name: newEntry.className,
+            chapter: newEntry.chapter,
+            concept: newEntry.concept,
+            explained: newEntry.explained,
+            discovered: newEntry.discovered,
+            plan: newEntry.plan
+          });
+        } catch (err) {
+          console.error('Supabase entry insert error:', err);
+        }
+      }
+
+      alert('성찰 일기가 성공적으로 저장되었습니다!');
       document.getElementById('ans-concept').value = '';
       document.getElementById('ans-explained').value = '';
       document.getElementById('ans-discovered').value = '';
@@ -572,16 +876,81 @@
       renderStudentView();
     }
 
-    // 교사 필터링
+    function renderTeacherView() {
+      const select = document.getElementById('teacher-class-select');
+      const meta = document.getElementById('teacher-class-meta');
+      const codeText = document.getElementById('teacher-code-text');
+
+      if (classes.length === 0) {
+        select.innerHTML = '<option value="">개설된 수업 없음</option>';
+        meta.innerText = '우측 상단의 [+ 새 수업 개설] 또는 [명렬표 엑셀 등록]을 눌러 첫 수업을 시작하세요.';
+        codeText.innerText = '-';
+        document.getElementById('teacher-entries-grid').innerHTML = `
+          <div class="col-span-full p-12 bg-white rounded-3xl border border-dashed border-slate-300 text-center space-y-3">
+            <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">🏫</div>
+            <h3 class="text-base font-bold text-slate-800">아직 개설된 수업이 없습니다</h3>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+              더미데이터가 완전히 제거된 깨끗한 상태입니다. [+ 새 수업 개설] 버튼을 눌러 수업코드를 생성하거나 명렬표 엑셀을 업로드하세요.
+            </p>
+            <div class="pt-2 flex justify-center space-x-2">
+              <button onclick="openClassModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs">
+                + 첫 수업 개설하기
+              </button>
+              <button onclick="openRosterModal()" class="px-4 py-2 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold">
+                📋 명렬표 엑셀 등록
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      select.innerHTML = classes.map(c => `
+        <option value="${c.id}" ${c.id === selectedClassId ? 'selected' : ''}>
+          ${c.name} (${c.subject})
+        </option>
+      `).join('');
+
+      const activeCls = classes.find(c => c.id === selectedClassId) || classes[0];
+      selectedClassId = activeCls.id;
+      meta.innerText = `담당: ${activeCls.teacher} · 과목: ${activeCls.subject} · 오늘 진도: ${activeCls.activeChapter.major} ${activeCls.activeChapter.minor ? '> ' + activeCls.activeChapter.minor : ''}`;
+      codeText.innerText = activeCls.code;
+
+      applyTeacherFilter();
+    }
+
+    function handleClassChange() {
+      selectedClassId = document.getElementById('teacher-class-select').value;
+      renderTeacherView();
+    }
+
     function applyTeacherFilter() {
+      const activeCls = classes.find(c => c.id === selectedClassId);
+      if (!activeCls) return;
+
       const dateVal = document.getElementById('filter-date').value;
       const stdVal = document.getElementById('filter-student').value;
       const chVal = document.getElementById('filter-chapter').value;
       const searchVal = document.getElementById('filter-search').value.toLowerCase().trim();
 
-      const filtered = entries.filter(e => {
+      const classEntries = entries.filter(e => e.className === activeCls.name || !e.className);
+
+      const uniqueDates = Array.from(new Set(classEntries.map(e => e.date)));
+      const dateSelect = document.getElementById('filter-date');
+      const prevDate = dateSelect.value;
+      dateSelect.innerHTML = '<option value="all">모든 날짜</option>' + uniqueDates.map(d => `<option value="${d}" ${d === prevDate ? 'selected' : ''}>${d}</option>`).join('');
+
+      const uniqueStudents = Array.from(new Set(classEntries.map(e => `${e.studentNumber}|${e.studentName}`)));
+      const stdSelect = document.getElementById('filter-student');
+      const prevStd = stdSelect.value;
+      stdSelect.innerHTML = '<option value="all">전체 학생</option>' + uniqueStudents.map(s => {
+        const [num, name] = s.split('|');
+        return `<option value="${num}" ${num === prevStd ? 'selected' : ''}>${num} ${name}</option>`;
+      }).join('');
+
+      const filtered = classEntries.filter(e => {
         if (dateVal !== 'all' && e.date !== dateVal) return false;
-        if (stdVal !== 'all' && e.studentId !== stdVal) return false;
+        if (stdVal !== 'all' && e.studentNumber !== stdVal) return false;
         if (chVal !== 'all' && e.chapter.major !== chVal) return false;
         if (searchVal) {
           const match = e.studentName.includes(searchVal) || e.studentNumber.includes(searchVal) || e.concept.includes(searchVal) || e.explained.includes(searchVal);
@@ -592,7 +961,7 @@
 
       const grid = document.getElementById('teacher-entries-grid');
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full p-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">조건에 맞는 일기가 없습니다.</div>';
+        grid.innerHTML = '<div class="col-span-full p-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">조건에 맞는 성찰 일기가 없습니다. 학생들에게 수업코드를 공유해주세요.</div>';
         return;
       }
 
@@ -602,22 +971,22 @@
             <span class="font-bold text-slate-800">${e.studentNumber} ${e.studentName}</span>
             <span class="text-slate-400 text-[11px]">${e.date}</span>
           </div>
-          <div class="text-[11px] font-semibold text-blue-600 truncate">${e.chapter.major} &gt; ${e.chapter.minor}</div>
+          <div class="text-[11px] font-semibold text-blue-600 truncate">${e.chapter.major} ${e.chapter.minor ? '&gt; ' + e.chapter.minor : ''}</div>
           <div class="space-y-1.5 pt-1">
             <div class="bg-slate-50 p-2 rounded-lg">
-              <strong class="text-slate-600 block text-[10px]">배운 개념</strong>
+              <strong class="text-slate-600 block text-[10px]">1. 배운 개념</strong>
               <p class="text-slate-800 line-clamp-2">${e.concept}</p>
             </div>
             <div class="bg-slate-50 p-2 rounded-lg">
-              <strong class="text-slate-600 block text-[10px]">이해한 내용</strong>
+              <strong class="text-slate-600 block text-[10px]">2. 이해한 내용</strong>
               <p class="text-slate-800 line-clamp-2">${e.explained}</p>
             </div>
             <div class="bg-amber-50/70 p-2 rounded-lg border border-amber-100">
-              <strong class="text-amber-800 block text-[10px]">새롭게 알게 된 점 / 풀린 점</strong>
+              <strong class="text-amber-800 block text-[10px]">3. 새롭게 알게 된 점 / 풀린 점</strong>
               <p class="text-amber-950 line-clamp-2">${e.discovered || '(미입력)'}</p>
             </div>
             <div class="bg-blue-50/70 p-2 rounded-lg border border-blue-100">
-              <strong class="text-blue-800 block text-[10px]">앞으로의 계획</strong>
+              <strong class="text-blue-800 block text-[10px]">4. 앞으로의 계획</strong>
               <p class="text-blue-950 line-clamp-2">${e.plan || '(미입력)'}</p>
             </div>
           </div>
@@ -625,7 +994,10 @@
       `).join('');
     }
 
-    // 인쇄 모드 전환
+    function openPrintView() {
+      switchRole('print');
+    }
+
     function setPrintMode(mode) {
       printMode = mode;
       document.getElementById('btn-print-filled').className = mode === 'filled' ? 'px-3 py-1.5 rounded-lg bg-white text-blue-600 shadow-xs' : 'px-3 py-1.5 rounded-lg text-slate-600';
@@ -633,15 +1005,22 @@
       renderPrintView();
     }
 
-    // A4 가로 2쪽(A5×2) 인쇄 뷰 렌더링
     function renderPrintView() {
       const container = document.getElementById('print-sheet-container');
-      const pairs = [];
-      for (let i = 0; i < entries.length; i += 2) {
-        pairs.push(entries.slice(i, i + 2));
+      const activeCls = classes.find(c => c.id === selectedClassId) || { name: '수학 수업', subject: '수학', teacher: '담당교사' };
+      const printEntries = entries.filter(e => e.className === activeCls.name || !e.className);
+
+      if (printEntries.length === 0) {
+        container.innerHTML = '<div class="p-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">인쇄할 성찰 일기가 없습니다.</div>';
+        return;
       }
 
-      container.innerHTML = pairs.map((pair, pIdx) => `
+      const pairs = [];
+      for (let i = 0; i < printEntries.length; i += 2) {
+        pairs.push(printEntries.slice(i, i + 2));
+      }
+
+      container.innerHTML = pairs.map((pair) => `
         <div class="print-sheet bg-white rounded-2xl print:rounded-none border print:border-none border-slate-300 p-6 print:p-0 shadow-md print:shadow-none min-h-[190mm] grid grid-cols-1 md:grid-cols-2 gap-6 print:gap-[10mm]">
           ${pair.map(e => `
             <div class="print-a5-card border border-slate-400 rounded-xl p-4 flex flex-col justify-between text-[11px] leading-tight" style="min-height: 185mm;">
@@ -658,7 +1037,7 @@
                     <div><strong>이름:</strong> ${e.studentName}</div>
                   </div>
                   <div class="mt-1 text-[10px] text-slate-800 truncate">
-                    <strong>단원:</strong> ${e.chapter.major} &gt; ${e.chapter.minor} (${e.chapter.topic})
+                    <strong>단원:</strong> ${e.chapter.major} &gt; ${e.chapter.minor}
                   </div>
                 </div>
 
@@ -693,31 +1072,257 @@
       `).join('');
     }
 
-    // 모달 제어
+    function handleLogout() {
+      currentSession = null;
+      renderStudentView();
+    }
+
     function openClassModal() {
       document.getElementById('modal-class-setup').classList.remove('hidden');
+      document.getElementById('modal-class-code').value = generateCode();
     }
     function closeClassModal() {
       document.getElementById('modal-class-setup').classList.add('hidden');
     }
-    function selectCurriculum(maj, min, top) {
-      currentClass.major = maj;
-      currentClass.minor = min;
-      currentClass.topic = top;
-      document.getElementById('modal-selected-summary').innerText = `선택: ${maj} > ${min} > ${top}`;
+    function generateNewModalCode() {
+      document.getElementById('modal-class-code').value = generateCode();
     }
-    function saveClassModal() {
-      currentClass.name = document.getElementById('modal-class-name').value;
-      currentClass.code = document.getElementById('modal-class-code').value;
+    function selectCurriculum(maj, min, top) {
+      modalCurriculum = { major: maj, minor: min, topic: top };
+      document.getElementById('modal-selected-summary').innerText = `선택: ${maj} > ${min} (${top})`;
+    }
+    async function handleSaveClass(e) {
+      e.preventDefault();
+      const name = document.getElementById('modal-class-name').value.trim();
+      const teacher = document.getElementById('modal-class-teacher').value.trim();
+      const subject = document.getElementById('modal-class-subject').value.trim();
+      const code = document.getElementById('modal-class-code').value.trim().toUpperCase();
+
+      const newCls = {
+        id: `cls_${Date.now()}`,
+        name,
+        teacher,
+        subject,
+        code,
+        activeChapter: modalCurriculum.major ? modalCurriculum : { major: '오늘의 학습 단원', minor: '핵심 내용', topic: '' }
+      };
+
+      classes.push(newCls);
+      localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+      selectedClassId = newCls.id;
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('classes').insert({
+            name: newCls.name,
+            teacher: newCls.teacher,
+            subject: newCls.subject,
+            code: newCls.code,
+            active_chapter: newCls.activeChapter
+          });
+        } catch (err) {
+          console.error('Supabase class insert error:', err);
+        }
+      }
+
       closeClassModal();
-      document.getElementById('active-class-title').innerText = `${currentClass.name} · ${currentClass.subject}`;
-      document.getElementById('active-major-title').innerText = currentClass.major;
-      document.getElementById('active-minor-title').innerText = `${currentClass.minor} · ${currentClass.topic}`;
-      alert('수업 정보 및 단원이 성공적으로 업데이트되었습니다!');
-      applyTeacherFilter();
+      alert(`[${name}] 수업이 개설되었습니다!\n수업코드: ${code}`);
+      renderTeacherView();
+    }
+
+    function openRosterModal() {
+      document.getElementById('modal-roster').classList.remove('hidden');
+    }
+    function closeRosterModal() {
+      document.getElementById('modal-roster').classList.add('hidden');
+    }
+
+    function downloadRosterTemplate() {
+      const csvHeader = "학번,이름,학급명,교사명,과목,초기비밀번호\n";
+      const sampleRow1 = "20301,김수학,2학년 3반,홍길동,공통수학1,1234\n";
+      const sampleRow2 = "20302,이도형,2학년 3반,홍길동,공통수학1,1234\n";
+      const sampleRow3 = "20303,박함수,2학년 3반,홍길동,공통수학1,1234\n";
+      const csvContent = "\uFEFF" + csvHeader + sampleRow1 + sampleRow2 + sampleRow3;
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "수학성찰일기_명렬표_기본양식.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleRosterFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const text = e.target.result;
+        const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+        if (lines.length <= 1) {
+          alert('등록할 학생 데이터가 없습니다.');
+          return;
+        }
+
+        let addedCount = 0;
+        let createdClass = null;
+
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(',').map(c => c.trim().replace(/"/g, ''));
+          if (cols.length >= 2) {
+            const studentNum = cols[0];
+            const studentName = cols[1];
+            const className = cols[2] || '등록 학급';
+            const teacherName = cols[3] || '수학교사';
+            const subjectName = cols[4] || '수학';
+            const pin = cols[5] || '1234';
+
+            if (!createdClass) {
+              const existingClass = classes.find(c => c.name === className);
+              if (existingClass) {
+                createdClass = existingClass;
+              } else {
+                createdClass = {
+                  id: `cls_${Date.now()}`,
+                  name: className,
+                  teacher: teacherName,
+                  subject: subjectName,
+                  code: generateCode(),
+                  activeChapter: { major: '오늘의 학습 단원', minor: '', topic: '' }
+                };
+                classes.push(createdClass);
+                if (supabaseClient) {
+                  try {
+                    await supabaseClient.from('classes').insert({
+                      name: createdClass.name,
+                      teacher: createdClass.teacher,
+                      subject: createdClass.subject,
+                      code: createdClass.code,
+                      active_chapter: createdClass.activeChapter
+                    });
+                  } catch (err) {
+                    console.error('Supabase roster class error:', err);
+                  }
+                }
+              }
+            }
+
+            students.push({
+              studentNumber: studentNum,
+              name: studentName,
+              pin: pin,
+              classId: createdClass.id
+            });
+            addedCount++;
+          }
+        }
+
+        localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+        localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(students));
+        selectedClassId = createdClass ? createdClass.id : selectedClassId;
+
+        const msgBox = document.getElementById('roster-status-msg');
+        msgBox.innerText = `성공: 총 ${addedCount}명의 학생 명렬표와 [${createdClass.name}] 수업(코드: ${createdClass.code})이 등록되었습니다!`;
+        msgBox.classList.remove('hidden');
+
+        setTimeout(() => {
+          closeRosterModal();
+          msgBox.classList.add('hidden');
+          renderTeacherView();
+        }, 1500);
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    // 투어 가이드
+    let currentTourStep = 0;
+    const tourSteps = [
+      {
+        elementId: 'tour-step-role-nav',
+        title: '1. 학생 모드와 교사 모드 전환',
+        desc: '상단 탭에서 언제든지 [학생 일기장]과 [교사 대시보드]를 전환할 수 있습니다.\n학생은 일기 작성 및 본인 일기장 보관함으로, 교사는 수업 관리와 대시보드로 이동합니다.',
+        role: 'student'
+      },
+      {
+        elementId: 'tour-step-create-class',
+        title: '2. 수업코드 생성 방법 (교사)',
+        desc: '교사 대시보드에서 [+ 새 수업 개설] 버튼을 누르면 학급명과 과목을 지정하고 고유 수업코드(예: MTH-203)가 1초 만에 자동 발급됩니다.\n이 코드를 전자칠판에 띄워 학생들에게 1회 공유해주시면 됩니다.',
+        role: 'teacher'
+      },
+      {
+        elementId: 'tour-step-excel',
+        title: '3. 명렬표 엑셀 양식 다운로드 & 업로드',
+        desc: '학급 학생들의 명렬표를 일일이 손으로 칠 필요 없이, [기본 엑셀 양식 다운로드]를 받아 학번과 이름을 적은 뒤 업로드하면 전교생 계정과 수업이 한 번에 자동 세팅됩니다.',
+        role: 'teacher'
+      },
+      {
+        elementId: 'tour-step-q1',
+        title: '4. 자연스러운 4문항 성찰 일기 작성',
+        desc: '학생은 불필요한 보조설명 없이 4개의 직관적인 질문에 3분간 솔직하게 답변합니다.\n제출된 글은 학생 본인만 비밀이 보장되어 조회할 수 있고, 교사는 날짜/학생/단원별로 모아보거나 A4 가로 2쪽(A5×2)으로 즉시 인쇄할 수 있습니다.',
+        role: 'student'
+      }
+    ];
+
+    function startTour() {
+      currentTourStep = 0;
+      document.getElementById('tour-overlay').classList.remove('hidden');
+      updateTourStep();
+    }
+
+    function endTour() {
+      document.getElementById('tour-overlay').classList.add('hidden');
+      const prevActive = document.querySelector('.spotlight-active');
+      if (prevActive) prevActive.classList.remove('spotlight-active');
+    }
+
+    function updateTourStep() {
+      const step = tourSteps[currentTourStep];
+      if (currentRole !== step.role) switchRole(step.role);
+
+      const prevActive = document.querySelector('.spotlight-active');
+      if (prevActive) prevActive.classList.remove('spotlight-active');
+
+      const targetEl = document.getElementById(step.elementId);
+      const postIt = document.getElementById('tour-post-it');
+
+      if (targetEl) {
+        targetEl.classList.add('spotlight-active');
+        const rect = targetEl.getBoundingClientRect();
+        const topPos = Math.max(20, Math.min(window.innerHeight - 250, rect.bottom + 15));
+        postIt.style.top = `${topPos}px`;
+      } else {
+        postIt.style.top = '150px';
+      }
+
+      document.getElementById('tour-step-badge').innerText = `사용법 ${currentTourStep + 1} / ${tourSteps.length}`;
+      document.getElementById('tour-title').innerText = step.title;
+      document.getElementById('tour-description').innerText = step.desc;
+
+      document.getElementById('tour-btn-prev').style.visibility = currentTourStep === 0 ? 'hidden' : 'visible';
+      document.getElementById('tour-btn-next').innerText = currentTourStep === tourSteps.length - 1 ? '완료' : '다음 →';
+    }
+
+    function nextTourStep() {
+      if (currentTourStep < tourSteps.length - 1) {
+        currentTourStep++;
+        updateTourStep();
+      } else {
+        endTour();
+      }
+    }
+
+    function prevTourStep() {
+      if (currentTourStep > 0) {
+        currentTourStep--;
+        updateTourStep();
+      }
     }
 
     // 초기 실행
+    initSupabase();
+
     if (window.location.hash === '#teacher') {
       switchRole('teacher');
     } else if (window.location.hash === '#print') {

@@ -62,18 +62,6 @@ export const Header: React.FC<HeaderProps> = ({
             <GraduationCap className="w-4 h-4" />
             <span>교사 대시보드</span>
           </button>
-
-          <button
-            onClick={() => onSelectRole("print")}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-colors ${
-              currentRole === "print"
-                ? "bg-white text-blue-600 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Printer className="w-4 h-4" />
-            <span>A4 가로 2쪽 인쇄</span>
-          </button>
         </nav>
 
         {/* 우측 세션 정보 및 로그아웃 */}

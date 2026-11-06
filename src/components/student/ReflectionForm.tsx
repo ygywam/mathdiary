@@ -99,8 +99,8 @@ export const ReflectionForm: React.FC<ReflectionFormProps> = ({
             rows={3}
             value={answers.concept}
             onChange={(e) => handleChange("concept", e.target.value)}
-            placeholder="예: 이차방정식의 판별식 D=b²-4ac의 의미와 실근·허근 조건"
-            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+            required
           />
         </div>
 
@@ -116,8 +116,8 @@ export const ReflectionForm: React.FC<ReflectionFormProps> = ({
             rows={3}
             value={answers.explained}
             onChange={(e) => handleChange("explained", e.target.value)}
-            placeholder="예: 근호 안의 숫자가 양수면 실근이 2개 생기고, 음수면 허수 단위 i가 생겨서 허근이 되는 원리야..."
-            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+            required
           />
         </div>
 
@@ -133,8 +133,7 @@ export const ReflectionForm: React.FC<ReflectionFormProps> = ({
             rows={3}
             value={answers.discovered}
             onChange={(e) => handleChange("discovered", e.target.value)}
-            placeholder="예: 계수가 실수일 때만 판별식을 써야 한다는 조건을 처음 알았다."
-            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
           />
         </div>
 
@@ -150,19 +149,12 @@ export const ReflectionForm: React.FC<ReflectionFormProps> = ({
             rows={3}
             value={answers.plan}
             onChange={(e) => handleChange("plan", e.target.value)}
-            placeholder="예: 교과서 예제 3번 다시 풀기, 모르는 4번 문제 질문하기"
-            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
           />
         </div>
 
         {/* 하단 제출 및 상태 */}
-        <div className="pt-2 flex items-center justify-between">
-          <div className="text-xs text-slate-500 flex items-center space-x-1.5">
-            <Sparkles className="w-4 h-4 text-blue-500" />
-            <span>작성 내용은 본인과 담당 선생님만 볼 수 있습니다.</span>
-          </div>
-
-          <div className="flex items-center space-x-3">
+        <div className="pt-2 flex items-center justify-end space-x-3">
             {isSaved && (
               <span className="flex items-center space-x-1 text-xs font-semibold text-emerald-600">
                 <CheckCircle2 className="w-4 h-4" />
