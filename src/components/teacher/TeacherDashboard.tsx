@@ -208,9 +208,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             onClick={onGoToPrint}
             data-tour="tour-print-btn"
             className="flex items-center space-x-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-semibold transition-colors shadow-xs cursor-pointer"
+            title="A4 세로 1장 전면형 또는 A4 가로 2쪽(A5×2) 분할형 인쇄 및 수기용 활동지 출력"
           >
             <Printer className="w-4 h-4" />
-            <span>A4 가로 2쪽 인쇄</span>
+            <span>활동지/일기 인쇄</span>
           </button>
         </div>
       </div>
