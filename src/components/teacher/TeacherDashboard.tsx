@@ -10,8 +10,6 @@ import {
   Search,
   Printer,
   PlusCircle,
-  Copy,
-  Check,
   Award,
   Sparkles,
   FileSpreadsheet,
@@ -28,6 +26,7 @@ interface TeacherDashboardProps {
   onOpenRosterUpload: () => void;
   onOpenSettings: () => void;
   onOpenStudentManagement: () => void;
+  onOpenAIAssistant: () => void;
   onGoToPrint: () => void;
 }
 
@@ -40,6 +39,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   onOpenRosterUpload,
   onOpenSettings,
   onOpenStudentManagement,
+  onOpenAIAssistant,
   onGoToPrint,
 }) => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -48,8 +48,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     majorChapter: "all",
     searchQuery: "",
   });
-
-  const [copiedCode, setCopiedCode] = useState(false);
 
   // 수업이 전혀 개설되지 않은 초기 상태 (Empty State)
   if (!currentClass || allClasses.length === 0) {
@@ -64,7 +62,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               아직 개설된 수학 수업이 없습니다
             </h3>
             <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-              선생님만의 새 수업을 개설하여 고유 수업코드를 발급하거나, 학생 명렬표 엑셀 파일을 업로드하여 수업과 학생 계정을 일괄 등록하세요.
+              선생님만의 새 수업을 개설하거나, 학생 명렬표 엑셀 파일을 업로드하여 수업과 학생 명렬을 등록하세요.
             </p>
           </div>
 
@@ -98,13 +96,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const uniqueDates = filterEngine.getUniqueDates(entries);
   const uniqueMajors = filterEngine.getUniqueMajorChapters(entries);
   const studentStats = filterEngine.getStudentStats(entries);
-
-  // 수업코드 복사
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(currentClass.code);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -189,30 +180,22 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           </div>
         </div>
 
-        {/* 대형 수업코드 및 인쇄 버튼 */}
-        <div className="flex items-center space-x-4">
-          <div data-tour="tour-code-card" className="bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-2xl flex items-center space-x-3">
-            <div>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
-                학급 고정 수업코드
-              </span>
-              <span className="text-xl sm:text-2xl font-mono font-bold text-blue-800 tracking-widest">
-                {currentClass.code}
-              </span>
-            </div>
-            <button
-              onClick={handleCopyCode}
-              title="수업코드 복사"
-              className="p-2 text-blue-600 hover:bg-blue-100 rounded-xl transition-colors"
-            >
-              {copiedCode ? <Check className="w-5 h-5 text-emerald-600" /> : <Copy className="w-5 h-5" />}
-            </button>
-          </div>
+        {/* 우측 도구: 세특 AI 작성 및 인쇄 */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onOpenAIAssistant}
+            data-tour="tour-ai-btn"
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
+            title="학생들의 누적 성찰 일기를 바탕으로 교육부 지침 수학교과 세특 초안 자동 생성"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>세특 AI 작성</span>
+          </button>
 
           <button
             onClick={onGoToPrint}
             data-tour="tour-print-btn"
-            className="flex items-center space-x-1.5 px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-semibold transition-colors shadow-xs"
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-semibold transition-colors shadow-xs cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>A4 가로 2쪽 인쇄</span>
@@ -328,7 +311,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <BookOpen className="w-10 h-10 mx-auto text-slate-300 mb-2" />
             <h4 className="text-sm font-bold text-slate-700">등록된 성찰 일기가 없습니다</h4>
             <p className="text-xs text-slate-500 mt-1">
-              학생들에게 수업코드({currentClass.code})를 안내하여 첫 성찰 일기 작성을 독려하세요.
+              학생 명렬표를 등록하고, 학생들이 학번과 PIN 번호로 로그인하여 성찰 일기를 작성하도록 안내하세요.
             </p>
           </div>
         ) : (

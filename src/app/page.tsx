@@ -14,6 +14,7 @@ import { TeacherAuthModal } from "@/components/teacher/TeacherAuthModal";
 import { TeacherSettingsModal } from "@/components/teacher/TeacherSettingsModal";
 import { StudentManagementModal } from "@/components/teacher/StudentManagementModal";
 import { RosterUploadModal } from "@/components/teacher/RosterUploadModal";
+import { AIAssistantModal } from "@/components/teacher/AIAssistantModal";
 import { TourGuide, TourContext } from "@/components/common/TourGuide";
 import { A5PrintLayout } from "@/components/print/A5PrintLayout";
 import {
@@ -47,6 +48,7 @@ export default function Home() {
   const [isStudentManagementOpen, setIsStudentManagementOpen] = useState(false);
   const [isStudentPasswordOpen, setIsStudentPasswordOpen] = useState(false);
   const [isRosterUploadOpen, setIsRosterUploadOpen] = useState(false);
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // 데이터 동기화 함수
@@ -325,6 +327,7 @@ export default function Home() {
             onOpenRosterUpload={() => setIsRosterUploadOpen(true)}
             onOpenSettings={() => setIsTeacherSettingsOpen(true)}
             onOpenStudentManagement={() => setIsStudentManagementOpen(true)}
+            onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
             onGoToPrint={() => setCurrentRole("print")}
           />
         )}
@@ -394,6 +397,14 @@ export default function Home() {
         onClose={() => setIsRosterUploadOpen(false)}
         currentClass={activeClass}
         onSuccess={refreshData}
+      />
+
+      {/* 수학교과 세특 AI 초안 생성 모달 (Gemini API) */}
+      <AIAssistantModal
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        currentClass={activeClass}
+        entries={currentClassEntries}
       />
 
       {/* 화면 맞춤형 스포트라이트 포스트잇 가이드 투어 모달 */}

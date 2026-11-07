@@ -291,7 +291,7 @@
           </button>
 
           <!-- 학생 PIN 관리 버튼 -->
-          <button onclick="openStudentMgmtModal()" class="flex items-center space-x-1 px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 rounded-xl text-xs font-bold transition-colors">
+          <button id="tour-step-pin-mgmt" onclick="openStudentMgmtModal()" class="flex items-center space-x-1 px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 rounded-xl text-xs font-bold transition-colors">
             <span>👥</span>
             <span>학생 PIN 관리</span>
           </button>
@@ -302,13 +302,11 @@
             <span>설정</span>
           </button>
 
-          <!-- 수업코드 표시 카드 -->
-          <div id="teacher-code-badge" class="bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-2xl flex items-center space-x-2">
-            <div>
-              <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">학기 고정 수업코드</span>
-              <span id="teacher-code-text" class="text-xl font-mono font-bold text-blue-800 tracking-widest">-</span>
-            </div>
-          </div>
+          <!-- 세특 AI 작성 버튼 -->
+          <button id="tour-step-ai-btn" onclick="openAIAssistantModal()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-500/20 flex items-center space-x-1.5 cursor-pointer">
+            <span>✨</span>
+            <span>세특 AI 작성</span>
+          </button>
 
           <!-- 인쇄 버튼 -->
           <button id="tour-step-print-btn" onclick="openPrintView()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors shadow-xs">
@@ -480,13 +478,7 @@
             <input id="modal-class-subject" type="text" placeholder="예: 공통수학1" class="w-full p-2.5 border border-slate-300 rounded-xl" required>
           </div>
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
-            <span>고정 수업코드 (자동 생성)</span>
-            <button type="button" onclick="generateNewModalCode()" class="text-blue-600 hover:underline text-[11px]">새 코드 발급</button>
-          </label>
-          <input id="modal-class-code" type="text" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono font-bold text-blue-700 uppercase" required>
-        </div>
+        <input id="modal-class-code" type="hidden">
         <div>
           <label class="block font-bold text-slate-700 mb-1">단원 1클릭 선택 (2022 개정 수학과)</label>
           <div class="border border-slate-200 rounded-xl p-2.5 max-h-36 overflow-y-auto space-y-1.5 bg-slate-50">
@@ -711,7 +703,6 @@
 
   <!-- [0. 풀스크린 인트로 스플래시 화면 (화면 전체 100vw, 100vh 꽉 채움)] -->
   <div id="fullscreen-intro" class="hidden fixed inset-0 z-50 flex flex-col justify-between overflow-y-auto bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white transition-opacity duration-300">
-    <!-- 배경 전체를 채우는 인라인 고해상도 수학 테마 벡터 그래픽 (엑박 100% 방지) -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-35">
       <svg class="w-full h-full" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
         <defs>
@@ -748,7 +739,6 @@
       </svg>
     </div>
 
-    <!-- 상단 바 -->
     <header class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-2xl bg-blue-600/80 border border-blue-400/30 flex items-center justify-center text-xl shadow-lg backdrop-blur-md">
@@ -764,7 +754,6 @@
       </button>
     </header>
 
-    <!-- 중앙 메인 히어로 섹션 -->
     <main class="relative z-10 w-full max-w-4xl mx-auto px-6 py-8 flex flex-col items-center text-center my-auto">
       <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-200 text-xs font-semibold mb-6 backdrop-blur-md">
         <span>✨</span>
@@ -801,7 +790,6 @@
       </button>
     </main>
 
-    <!-- 하단 푸터 -->
     <footer class="relative z-10 w-full max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 text-xs text-blue-200/70">
       <label class="flex items-center space-x-2.5 cursor-pointer select-none hover:text-white transition-colors">
         <input type="checkbox" id="chk-never-intro" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-white/30 bg-white/10 cursor-pointer">
@@ -827,11 +815,100 @@
       </div>
 
       <div id="class-selection-list" class="space-y-3 mb-6 max-h-80 overflow-y-auto">
-        <!-- 자바스크립트로 동적 렌더링 -->
+        <!-- 동적 렌더링 -->
       </div>
 
       <div class="text-center text-xs text-slate-400">
         💡 일기 작성 후 상단 메뉴에서 언제든지 다른 수업으로 전환할 수 있습니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- [수학교과 세특 AI 초안 생성 모달 (Gemini API)] -->
+  <div id="modal-ai-assistant" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-8 text-slate-800 space-y-5 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2 text-slate-900 font-bold text-lg">
+          <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-sm shadow-sm">✨</span>
+          <span>수학교과 세특(과세특) AI 초안 생성</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 font-semibold">교육부 지침 준수</span>
+        </div>
+        <button onclick="closeAIAssistantModal()" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
+      </div>
+
+      <!-- 상단 API 키 배너 -->
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-slate-600">🛡️ API 키는 서버로 전송되지 않으며, <strong>선생님 개인 브라우저에만 안전하게 보관</strong>됩니다.</span>
+        <button onclick="toggleApiKeyConfig()" class="text-blue-600 hover:underline font-semibold cursor-pointer">🔑 API 키 / 모델 설정</button>
+      </div>
+
+      <!-- API 키 설정 영역 (접이식) -->
+      <div id="ai-key-config-box" class="hidden p-4 rounded-2xl bg-blue-50/50 border border-blue-200 space-y-3">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="flex-1">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+              <span>Gemini API 키</span>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" class="text-blue-600 hover:underline text-[11px] font-normal">Google AI Studio에서 무료 발급 ↗</a>
+            </div>
+            <input id="ai-gemini-key" type="password" placeholder="AIzaSy... 로 시작하는 키 입력" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono">
+          </div>
+          <div class="w-full sm:w-56">
+            <label class="block text-xs font-bold text-slate-700 mb-1">사용 모델 (최신 공식)</label>
+            <select id="ai-gemini-model" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium">
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (권장 · 초고속)</option>
+              <option value="gemini-3.5-flash">Gemini 3.5 Flash (고성능)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (심층 서술)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button onclick="removeApiKey()" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg cursor-pointer">키 삭제</button>
+          <button onclick="saveApiKey()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs cursor-pointer">설정 저장</button>
+        </div>
+      </div>
+
+      <div id="ai-error-box" class="hidden p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-medium"></div>
+
+      <!-- 메인 2단 작업 영역 -->
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 overflow-hidden">
+        <!-- 좌측: 학생 선택 & 일기 요약 (5열) -->
+        <div class="md:col-span-5 flex flex-col space-y-3 overflow-hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">대상 학생 선택</label>
+            <select id="ai-student-select" onchange="onSelectAIStudent()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800">
+              <!-- 자바스크립트로 동적 렌더링 -->
+            </select>
+          </div>
+
+          <div id="ai-student-entries-box" class="flex-1 border border-slate-200 rounded-2xl p-3 bg-slate-50/50 overflow-y-auto space-y-2.5 text-xs">
+            <!-- 선택된 학생의 누적 일기 목록 -->
+          </div>
+
+          <button id="ai-generate-btn" onclick="generateAIStudentRecord()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-2xl text-xs shadow-md shadow-indigo-500/20 flex items-center justify-center space-x-1.5 cursor-pointer">
+            <span>이 학생의 세특 초안 생성하기 ✨</span>
+          </button>
+        </div>
+
+        <!-- 우측: 생성된 세특 에디터 & 나이스 복사 (7열) -->
+        <div class="md:col-span-7 flex flex-col space-y-3 overflow-hidden">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-700">세특 초안 에디터 (수정 가능)</label>
+            <div id="ai-char-counter" class="text-[11px] text-slate-500">
+              공백포함: <strong id="ai-char-count">0자</strong> | <span id="ai-byte-count" class="text-indigo-600 font-bold">0 / 1500 Bytes</span>
+            </div>
+          </div>
+
+          <textarea id="ai-result-textarea" oninput="updateCharCount()" rows="12" placeholder="좌측에서 학생을 선택하고 [세특 초안 생성하기] 버튼을 누르면, 학생의 실제 누적 성찰 일기를 바탕으로 교육부 지침에 맞춘 자연스러운 세특 초안이 이곳에 자동 작성됩니다." class="flex-1 w-full p-4 bg-slate-50/70 border border-slate-300 rounded-2xl text-xs sm:text-sm leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white resize-none font-sans"></textarea>
+
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="generateAIStudentRecord()" class="px-3 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer">🔄 다시 생성</button>
+            <button id="ai-copy-btn" onclick="copyAIGeneratedRecord()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer">📋 나이스(NEIS)용 1클릭 복사</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100 flex justify-end">
+        <button onclick="closeAIAssistantModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs cursor-pointer">닫기</button>
       </div>
     </div>
   </div>
@@ -848,11 +925,13 @@
     const STORAGE_KEY_TEACHERS = 'math_journal_teachers_v5';
     const STORAGE_KEY_ENROLLMENTS = 'math_journal_enrollments_v5';
     const STORAGE_KEY_INTRO = 'math_reflection_intro_dismissed_v1';
+    const STORAGE_KEY_GEMINI_KEY = 'math_reflection_gemini_api_key_v1';
+    const STORAGE_KEY_GEMINI_MODEL = 'math_reflection_gemini_model_v1';
 
-    // 학교 교사 인증키 "sflmath"의 SHA-256 해시값 (평문 비밀번호 노출 원천 차단)
+    // 학교 교사 인증키 "sflmath"의 SHA-256 해시값 (평문 노출 원천 차단)
     const TEACHER_SIGNUP_HASH = 'ca023949ab82a1a41fc6696ead64c7b54c9e87d7052b87e4e9b478becacd4c74';
 
-    // 클라이언트 사이드 SHA-256 해시 계산기
+    // SHA-256 해시 함수
     async function sha256(message) {
       const msgBuffer = new TextEncoder().encode(message.trim());
       if (typeof crypto !== 'undefined' && crypto.subtle) {
@@ -901,7 +980,7 @@
       if (intro) intro.classList.add('hidden');
     }
 
-    // 교사 인증 탭 전환 (로그인 / 새 계정 생성)
+    // 교사 인증 탭 전환
     function switchTeacherAuthTab(tab) {
       const formLogin = document.getElementById('form-teacher-login');
       const formReg = document.getElementById('form-teacher-register');
@@ -936,7 +1015,6 @@
       document.getElementById('modal-admin-auth').classList.add('hidden');
     }
 
-    // 교사 로그인 처리
     async function handleTeacherLoginSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('teacher-login-name').value.trim();
@@ -966,7 +1044,6 @@
       switchRole('teacher');
     }
 
-    // 새 교사 계정 생성 (학교 인증키 sflmath SHA-256 해시 검증)
     async function handleTeacherRegisterSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('teacher-reg-name').value.trim();
@@ -985,7 +1062,6 @@
         return;
       }
 
-      // 학교 교사 인증키 SHA-256 검증 (sflmath)
       const secretHash = await sha256(secret);
       if (secretHash !== TEACHER_SIGNUP_HASH) {
         err.innerText = '학교 교사 인증키가 일치하지 않습니다. 올바른 인증키를 입력해주세요.';
@@ -1015,8 +1091,209 @@
       currentRole = 'teacher';
       currentSession = { role: 'teacher', id: newTeacher.id, name: newTeacher.name };
       closeAdminAuthModal();
-      alert(`${name} 선생님 계정이 등록되었습니다.`);
+      alert(`${name} 선생님 계정이 성공적으로 등록되었습니다.`);
       switchRole('teacher');
+    }
+
+    // ==========================================
+    // 수학교과 세특 AI 초안 생성 기능 (Gemini API)
+    // ==========================================
+    function openAIAssistantModal() {
+      const modal = document.getElementById('modal-ai-assistant');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+
+      const key = localStorage.getItem(STORAGE_KEY_GEMINI_KEY) || '';
+      document.getElementById('ai-gemini-key').value = key;
+      const model = localStorage.getItem(STORAGE_KEY_GEMINI_MODEL) || 'gemini-2.5-flash';
+      document.getElementById('ai-gemini-model').value = model;
+
+      if (!key) {
+        document.getElementById('ai-key-config-box').classList.remove('hidden');
+      } else {
+        document.getElementById('ai-key-config-box').classList.add('hidden');
+      }
+
+      populateAIStudentSelect();
+    }
+
+    function closeAIAssistantModal() {
+      const modal = document.getElementById('modal-ai-assistant');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function toggleApiKeyConfig() {
+      const box = document.getElementById('ai-key-config-box');
+      box.classList.toggle('hidden');
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('ai-gemini-key').value.trim();
+      const model = document.getElementById('ai-gemini-model').value;
+      if (!key) {
+        alert('API 키를 입력해주세요.');
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY_GEMINI_KEY, key);
+      localStorage.setItem(STORAGE_KEY_GEMINI_MODEL, model);
+      alert('Gemini API 설정이 안전하게 저장되었습니다.');
+      document.getElementById('ai-key-config-box').classList.add('hidden');
+    }
+
+    function removeApiKey() {
+      if (confirm('저장된 API 키를 삭제하시겠습니까?')) {
+        localStorage.removeItem(STORAGE_KEY_GEMINI_KEY);
+        document.getElementById('ai-gemini-key').value = '';
+        alert('API 키가 삭제되었습니다.');
+      }
+    }
+
+    function populateAIStudentSelect() {
+      const select = document.getElementById('ai-student-select');
+      const classEntries = entries.filter(e => !selectedClassId || e.classId === selectedClassId);
+      const uniqueStudents = Array.from(new Map(classEntries.map(e => [e.studentNumber, { number: e.studentNumber, name: e.studentName }])).values());
+
+      if (uniqueStudents.length === 0) {
+        select.innerHTML = '<option value="">일기를 작성한 학생이 없습니다</option>';
+        document.getElementById('ai-student-entries-box').innerHTML = '<div class="py-8 text-center text-xs text-slate-400">작성된 일기가 없습니다.</div>';
+        return;
+      }
+
+      select.innerHTML = uniqueStudents.map(s => {
+        const count = classEntries.filter(e => e.studentNumber === s.number).length;
+        return `<option value="${s.number}">${s.number} ${s.name} (${count}건)</option>`;
+      }).join('');
+
+      onSelectAIStudent();
+    }
+
+    function onSelectAIStudent() {
+      const select = document.getElementById('ai-student-select');
+      const num = select.value;
+      const box = document.getElementById('ai-student-entries-box');
+      const studentEntries = entries.filter(e => e.studentNumber === num && (!selectedClassId || e.classId === selectedClassId));
+
+      if (studentEntries.length === 0) {
+        box.innerHTML = '<div class="py-8 text-center text-xs text-slate-400">선택된 학생의 일기가 없습니다.</div>';
+        return;
+      }
+
+      box.innerHTML = studentEntries.map((e, idx) => `
+        <div class="p-2.5 rounded-xl bg-white border border-slate-200 space-y-1">
+          <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+            <span>#${idx + 1} 차시</span>
+            <span>${e.date}</span>
+          </div>
+          <div class="font-semibold text-blue-700 text-[11px] truncate">${e.chapter.minor || e.chapter.major}</div>
+          <p class="text-slate-600 text-[11px] line-clamp-2">💡 ${e.concept}</p>
+        </div>
+      `).join('');
+    }
+
+    async function generateAIStudentRecord() {
+      const key = localStorage.getItem(STORAGE_KEY_GEMINI_KEY) || document.getElementById('ai-gemini-key').value.trim();
+      const model = localStorage.getItem(STORAGE_KEY_GEMINI_MODEL) || 'gemini-2.5-flash';
+      const num = document.getElementById('ai-student-select').value;
+      const errBox = document.getElementById('ai-error-box');
+      errBox.classList.add('hidden');
+
+      if (!key) {
+        errBox.innerText = 'Gemini API 키를 먼저 설정해주세요.';
+        errBox.classList.remove('hidden');
+        document.getElementById('ai-key-config-box').classList.remove('hidden');
+        return;
+      }
+
+      const studentEntries = entries.filter(e => e.studentNumber === num && (!selectedClassId || e.classId === selectedClassId));
+      if (studentEntries.length === 0) {
+        errBox.innerText = '선택한 학생의 성찰 일기가 없습니다.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const studentName = studentEntries[0].studentName;
+      const curCls = classes.find(c => c.id === selectedClassId);
+      const subjectName = curCls ? curCls.subject : '수학';
+
+      const btn = document.getElementById('ai-generate-btn');
+      btn.disabled = true;
+      btn.innerText = 'AI 심층 분석 및 세특 생성 중... ⏳';
+
+      const journalSummary = studentEntries.map((e, idx) => `
+[차시 ${idx + 1}] (${e.date}) 단원: ${e.chapter.major} > ${e.chapter.minor}
+- 배운 개념: ${e.concept}
+- 동료 설명: ${e.explained}
+- 발견한 취약점/오개념: ${e.discovered}
+- 방과후 계획: ${e.plan}
+      `).join('\n');
+
+      const systemPrompt = `당신은 대한민국 고등학교 수학 교사이자 학교생활기록부 작성 전문가입니다.
+제공된 학생의 실제 수학 수업 성찰 일기 데이터를 바탕으로, 교육부 학교생활기록부 기재요령을 완벽히 준수하는 '과목별 세부능력 및 특기사항(세특)' 초안을 작성해주세요.
+
+[학생 정보]
+- 이름: ${studentName} (학번: ${num})
+- 과목: ${subjectName}
+
+[학생이 작성한 수학 성찰 일기 기록]
+${journalSummary}
+
+[세특 작성 필수 지침]
+1. 관찰 중심 서술: 일기 내용에 등장하는 구체적인 수학적 개념과 학생의 실제 사고 과정을 근거로 작성할 것.
+2. 4대 평가 요소 반영: 개념 내면화 역량, 수학적 의사소통 역량, 메타인지 및 자기주도 보완 태도, 발전 가능성.
+3. 3인칭 관찰자 시점 유지 ("~함.", "~를 보임.", "~에 기여함.")
+4. 기재 금지어(사교육, 수상경력, 부모배경 등) 절대 배제.
+5. 분량: 한글 공백 포함 400자 ~ 500자 내외의 하나의 완성된 문단으로 작성 (제목이나 부연설명 없이 본문만 출력).`;
+
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData?.error?.message || `API 호출 에러 (${response.status})`);
+        }
+
+        const data = await response.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (!text) throw new Error('생성된 응답이 비어있습니다.');
+
+        document.getElementById('ai-result-textarea').value = text;
+        updateCharCount();
+      } catch (err) {
+        errBox.innerText = err.message || '세특 초안 생성 중 오류가 발생했습니다.';
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '이 학생의 세특 초안 생성하기 ✨';
+      }
+    }
+
+    function updateCharCount() {
+      const text = document.getElementById('ai-result-textarea').value;
+      const count = text.length;
+      let bytes = 0;
+      for (let i = 0; i < text.length; i++) {
+        bytes += (text.charCodeAt(i) <= 0x007f) ? 1 : 3;
+      }
+      document.getElementById('ai-char-count').innerText = `${count}자`;
+      document.getElementById('ai-byte-count').innerText = `${bytes} / 1500 Bytes`;
+    }
+
+    function copyAIGeneratedRecord() {
+      const text = document.getElementById('ai-result-textarea').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      const btn = document.getElementById('ai-copy-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '✓ 나이스(NEIS)용 복사 완료!';
+      setTimeout(() => { btn.innerHTML = originalText; }, 2000);
     }
 
     // 교사 환경설정 모달
@@ -1408,7 +1685,6 @@
       const studentName = myEnrollments.length > 0 ? myEnrollments[0].name : `${numInput} 학생`;
 
       if (myEnrollments.length === 1) {
-        // 수강 수업이 1개인 경우: 즉시 입장!
         const matchedClass = classes.find(c => c.id === myEnrollments[0].classId) || classes[0];
         currentSession = {
           role: 'student',
@@ -1419,10 +1695,8 @@
         };
         renderStudentView();
       } else if (myEnrollments.length > 1) {
-        // 고교학점제 다중 수강인 경우: 수업 선택 모달 오픈!
         openClassSelectionModal(studentName, numInput, pinInput, myEnrollments);
       } else {
-        // 아직 특정 수업에 명렬 등록이 안 된 경우: 개설된 첫 번째 수업 연결
         const fallbackClass = classes.length > 0 ? classes[0] : null;
         currentSession = {
           role: 'student',
@@ -1435,7 +1709,6 @@
       }
     }
 
-    // 다중 수업 선택 모달 열기
     function openClassSelectionModal(studentName, numInput, pinInput, enrollments) {
       document.getElementById('select-student-name').innerText = studentName;
       const listContainer = document.getElementById('class-selection-list');
@@ -1454,7 +1727,6 @@
       document.getElementById('modal-class-selection').classList.remove('hidden');
     }
 
-    // 다중 수업 중 하나 선택
     function selectStudentClass(classId, numInput, studentName, pinInput) {
       currentSession = {
         role: 'student',
@@ -1528,18 +1800,16 @@
     function renderTeacherView() {
       const select = document.getElementById('teacher-class-select');
       const meta = document.getElementById('teacher-class-meta');
-      const codeText = document.getElementById('teacher-code-text');
 
       if (classes.length === 0) {
         select.innerHTML = '<option value="">개설된 수업 없음</option>';
         meta.innerText = '우측 상단의 [+ 새 수업 개설] 또는 [명렬표 엑셀 등록]을 눌러 첫 수업을 시작하세요.';
-        codeText.innerText = '-';
         document.getElementById('teacher-entries-grid').innerHTML = `
           <div class="col-span-full p-12 bg-white rounded-3xl border border-dashed border-slate-300 text-center space-y-3">
             <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">🏫</div>
             <h3 class="text-base font-bold text-slate-800">아직 개설된 수업이 없습니다</h3>
             <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-              더미데이터가 완전히 제거된 깨끗한 상태입니다. [+ 새 수업 개설] 버튼을 눌러 수업코드를 생성하거나 명렬표 엑셀을 업로드하세요.
+              더미데이터가 완전히 제거된 깨끗한 상태입니다. [+ 새 수업 개설] 버튼을 눌러 수업을 개설하거나 명렬표 엑셀을 업로드하세요.
             </p>
             <div class="pt-2 flex justify-center space-x-2">
               <button onclick="openClassModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs">
@@ -1563,7 +1833,6 @@
       const activeCls = classes.find(c => c.id === selectedClassId) || classes[0];
       selectedClassId = activeCls.id;
       meta.innerText = `담당: ${activeCls.teacher} · 과목: ${activeCls.subject} · 오늘 진도: ${activeCls.activeChapter.major} ${activeCls.activeChapter.minor ? '> ' + activeCls.activeChapter.minor : ''}`;
-      codeText.innerText = activeCls.code;
 
       applyTeacherFilter();
     }
@@ -1610,7 +1879,7 @@
 
       const grid = document.getElementById('teacher-entries-grid');
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full p-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">조건에 맞는 성찰 일기가 없습니다. 학생들에게 수업코드를 공유해주세요.</div>';
+        grid.innerHTML = '<div class="col-span-full p-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">조건에 맞는 성찰 일기가 없습니다. 학생 명렬표를 등록하고 학생들이 학번과 PIN으로 일기를 작성하도록 안내하세요.</div>';
         return;
       }
 
@@ -1780,7 +2049,7 @@
       }
 
       closeClassModal();
-      alert(`[${name}] 수업이 개설되었습니다!\n수업코드: ${code}`);
+      alert(`[${name}] 수업이 개설되었습니다!`);
       renderTeacherView();
     }
 
@@ -1895,30 +2164,42 @@
       {
         elementId: 'tour-step-create-class',
         title: '1. 새 수업 개설',
-        desc: '학급명과 과목을 지정하면 2022 개정 수학 교육과정 단원이 자동완성되고 고유 수업코드가 즉시 발급됩니다.',
-        tip: '💡 한 학기 동안 사용할 고정 코드를 발급받으세요.'
+        desc: '학급명과 과목을 지정하면 2022 개정 수학 교육과정 단원이 자동완성되어 수업이 즉시 개설됩니다.',
+        tip: '💡 과목만 선택하면 전체 단원 목록이 1초 만에 구성됩니다.'
       },
       {
         elementId: 'tour-step-excel',
         title: '2. 학생 명렬표 엑셀 등록',
         desc: '기본 엑셀 서식을 받아 학생 명렬을 올리면 수파베이스 DB에 전교생 계정이 즉시 일괄 생성됩니다.',
-        tip: '💡 학생 개별 가입 없이 1회 업로드로 완료.'
+        tip: '💡 학생 개별 가입 없이 1회 업로드로 완료됩니다.'
+      },
+      {
+        elementId: 'tour-step-ai-btn',
+        title: '3. ✨ 세특 AI 자동 작성',
+        desc: '학생들의 누적 성찰 일기(개념, 설명, 오개념 극복, 실생활 적용)를 종합하여 교육부 지침에 맞는 수학교과 세특 초안을 즉시 자동 생성합니다.',
+        tip: '💡 Gemini API 연동 및 NEIS 1500바이트 기준 초안과 1클릭 복사를 지원합니다.'
+      },
+      {
+        elementId: 'filter-student',
+        title: '4. 다차원 조건 필터링',
+        desc: '날짜별, 특정 학생 1인 누적별, 단원별로 일기를 필터링하여 학생별 성장을 집중 관찰합니다.',
+        tip: '💡 학생을 선택하면 해당 학생의 전체 일기가 모아집니다.'
+      },
+      {
+        elementId: 'tour-step-pin-mgmt',
+        title: '5. 학생 PIN 관리',
+        desc: '학생들이 비밀번호를 분실했을 때 즉시 조회하고 초기 비밀번호로 재설정할 수 있습니다.',
+        tip: '💡 학생 개인정보를 안전하게 보호하며 관리할 수 있습니다.'
       },
       {
         elementId: 'tour-step-settings',
-        title: '3. 교사 환경설정',
-        desc: '선생님의 이름을 수정하고, 관리자 비밀번호를 변경할 수 있습니다.',
+        title: '6. 교사 환경설정',
+        desc: '선생님의 이름을 수정하고, 교사 관리자 비밀번호를 안전하게 변경할 수 있습니다.',
         tip: '💡 초기 비밀번호를 안전한 새 비밀번호로 꼭 변경해두세요.'
       },
       {
-        elementId: 'teacher-code-badge',
-        title: '4. 학급 고정 수업코드',
-        desc: '발급된 수업코드를 복사하여 교실 프로젝터나 칠판에 학생들에게 공유하세요.',
-        tip: '💡 클릭 한 번으로 수업코드가 복사됩니다.'
-      },
-      {
         elementId: 'tour-step-print-btn',
-        title: '5. A4 가로 2쪽(A5×2) 인쇄',
+        title: '7. A4 가로 2쪽(A5×2) 인쇄',
         desc: 'A4 가로 1장에 2쪽씩 나란히 인쇄되어 바인더 포트폴리오 철에 최적화되어 있습니다.',
         tip: '💡 웹 UI 요소는 숨겨지고 깔끔한 문서만 출력됩니다.'
       }
@@ -1926,22 +2207,22 @@
 
     const tourStepsStudentLogin = [
       {
-        elementId: 'login-student-num',
+        elementId: 'tour-step-student-num',
         title: '1. 학번 입력',
         desc: '본인의 학번(예: 20315)을 입력합니다. 수업코드를 외울 필요 없이 학번으로 내 수업에 자동 연결됩니다.',
         tip: '💡 이메일이나 전화번호 없이 안전하게 식별됩니다.'
       },
       {
-        elementId: 'login-student-pin',
+        elementId: 'tour-step-student-pin',
         title: '2. 비밀번호 PIN',
         desc: '본인의 4자리 비밀번호를 입력합니다. 다른 친구는 내 일기를 열어볼 수 없습니다.',
-        tip: '💡 본인의 작성 글만 철저히 격리됩니다.'
+        tip: '💡 본인의 작성 글만 철저히 격리되어 보호됩니다.'
       },
       {
         elementId: 'tour-step-login-btn',
-        title: '3. 수업 입장하기',
+        title: '3. 수업 입장 및 일기 쓰기',
         desc: '버튼을 누르면 배정된 수업의 오늘 단원과 성찰 일기 작성 화면으로 즉시 입장합니다.',
-        tip: '💡 여러 수업을 듣는 경우 수업 선택 화면이 나타납니다.'
+        tip: '💡 여러 과목을 수강하는 경우 수업 선택 화면이 나타납니다.'
       }
     ];
 
