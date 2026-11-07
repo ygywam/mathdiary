@@ -15,6 +15,8 @@ import {
   Award,
   Sparkles,
   FileSpreadsheet,
+  Settings,
+  Users,
 } from "lucide-react";
 
 interface TeacherDashboardProps {
@@ -24,6 +26,8 @@ interface TeacherDashboardProps {
   onSelectClass: (cls: ClassSession) => void;
   onOpenClassSetup: () => void;
   onOpenRosterUpload: () => void;
+  onOpenSettings: () => void;
+  onOpenStudentManagement: () => void;
   onGoToPrint: () => void;
 }
 
@@ -34,6 +38,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   onSelectClass,
   onOpenClassSetup,
   onOpenRosterUpload,
+  onOpenSettings,
+  onOpenStudentManagement,
   onGoToPrint,
 }) => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -136,12 +142,44 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-colors border border-emerald-200"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>명렬표 엑셀 등록/다운로드</span>
+              <span>명렬표 엑셀 등록</span>
+            </button>
+
+            <button
+              onClick={onOpenStudentManagement}
+              className="flex items-center space-x-1 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-xl transition-colors border border-purple-200"
+              title="학생 명렬 및 비밀번호(PIN) 초기화 관리"
+            >
+              <Users className="w-4 h-4" />
+              <span>학생 PIN 관리</span>
+            </button>
+
+            <button
+              onClick={onOpenSettings}
+              data-tour="tour-settings-btn"
+              className="flex items-center space-x-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition-colors border border-slate-300"
+              title="교사 환경설정 (이름 및 비밀번호 변경)"
+            >
+              <Settings className="w-4 h-4" />
+              <span>설정</span>
             </button>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span>담당: {currentClass.teacherName}</span>
+            <span>
+              담당:{" "}
+              <strong className="text-slate-800 font-bold">
+                {currentClass.teacherName && !currentClass.teacherName.includes("박수학")
+                  ? currentClass.teacherName
+                  : "수학교사"}
+              </strong>
+            </span>
+            <button
+              onClick={onOpenSettings}
+              className="text-blue-600 hover:underline text-[11px] font-semibold"
+            >
+              [교사명 변경]
+            </button>
             <span>·</span>
             <span>과목: {currentClass.subject}</span>
             <span>·</span>

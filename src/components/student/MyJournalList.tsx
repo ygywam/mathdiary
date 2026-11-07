@@ -26,7 +26,7 @@ export const MyJournalList: React.FC<MyJournalListProps> = ({
   }
 
   return (
-    <div className="max-w-2xl mx-auto my-6 space-y-4">
+    <div data-tour="tour-my-entries" className="max-w-2xl mx-auto my-6 space-y-4">
       <div className="flex items-center justify-between px-1">
         <div>
           <h3 className="text-base font-bold text-slate-800 flex items-center space-x-2">

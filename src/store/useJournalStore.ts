@@ -73,7 +73,11 @@ export const journalStore = {
       return INITIAL_CLASSES;
     }
     try {
-      return JSON.parse(raw);
+      const parsed: ClassSession[] = JSON.parse(raw);
+      return parsed.map((c) => ({
+        ...c,
+        teacherName: c.teacherName && !c.teacherName.includes("박수학") ? c.teacherName : "담당 수학교사",
+      }));
     } catch {
       return INITIAL_CLASSES;
     }
@@ -92,7 +96,7 @@ export const journalStore = {
           const mapped: ClassSession[] = data.map((row: any) => ({
             id: row.id,
             teacherId: row.teacher || "교사",
-            teacherName: row.teacher,
+            teacherName: row.teacher && !row.teacher.includes("박수학") ? row.teacher : "담당 수학교사",
             name: row.name,
             code: row.code,
             grade: "고등학교",

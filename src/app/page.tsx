@@ -5,11 +5,15 @@ import { Header } from "@/components/common/Header";
 import { StudentLogin } from "@/components/student/StudentLogin";
 import { ReflectionForm } from "@/components/student/ReflectionForm";
 import { MyJournalList } from "@/components/student/MyJournalList";
+import { StudentPasswordModal } from "@/components/student/StudentPasswordModal";
 import { TeacherDashboard } from "@/components/teacher/TeacherDashboard";
 import { ClassSetupModal } from "@/components/teacher/ClassSetupModal";
 import { TeacherAuthModal } from "@/components/teacher/TeacherAuthModal";
+import { TeacherSettingsModal } from "@/components/teacher/TeacherSettingsModal";
+import { StudentManagementModal } from "@/components/teacher/StudentManagementModal";
 import { RosterUploadModal } from "@/components/teacher/RosterUploadModal";
-import { TourGuide } from "@/components/common/TourGuide";
+import { WelcomeModal } from "@/components/common/WelcomeModal";
+import { TourGuide, TourContext } from "@/components/common/TourGuide";
 import { A5PrintLayout } from "@/components/print/A5PrintLayout";
 import {
   journalStore,
@@ -31,7 +35,11 @@ export default function Home() {
   // 모달 제어 상태
   const [isClassSetupOpen, setIsClassSetupOpen] = useState(false);
   const [isTeacherAuthOpen, setIsTeacherAuthOpen] = useState(false);
+  const [isTeacherSettingsOpen, setIsTeacherSettingsOpen] = useState(false);
+  const [isStudentManagementOpen, setIsStudentManagementOpen] = useState(false);
+  const [isStudentPasswordOpen, setIsStudentPasswordOpen] = useState(false);
   const [isRosterUploadOpen, setIsRosterUploadOpen] = useState(false);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // 데이터 동기화 함수
@@ -60,14 +68,19 @@ export default function Home() {
     }
   }, [activeClass]);
 
-  // 초기 마운트 시 데이터 로딩 및 기존 세션 복원
+  // 초기 마운트 시 데이터 로딩 및 첫 접속 웰컴 팝업 체크
   useEffect(() => {
     refreshData();
+
+    // 웰컴 팝업 '다시 보지 않기' 확인
+    const dismissed = localStorage.getItem("math_reflection_welcome_dismissed_v1");
+    if (!dismissed) {
+      setIsWelcomeOpen(true);
+    }
 
     const existingSession = authEngine.getCurrentSession();
     if (existingSession) {
       setSession(existingSession);
-      // 학생 세션은 유지하되, 교사 모드는 보안상 기본 학생 화면에서 시작하여 명시적 인증 후 진입하도록 설정
       if (existingSession.role === "student") {
         setCurrentRole("student");
       }
@@ -87,9 +100,10 @@ export default function Home() {
     }
   };
 
-  // 교사 관리자 인증 성공 핸들러 (PIN 1234 확인 후 진입)
+  // 교사 관리자 인증 성공 핸들러
   const handleTeacherAuthSuccess = () => {
-    const teacherSession = authEngine.loginAsTeacher("수학교사");
+    const teacherName = authEngine.getTeacherName();
+    const teacherSession = authEngine.loginAsTeacher(teacherName);
     setSession(teacherSession);
     setCurrentRole("teacher");
     setIsTeacherAuthOpen(false);
@@ -162,6 +176,14 @@ export default function Home() {
     setIsClassSetupOpen(false);
   };
 
+  // 현재 화면 컨텍스트 (투어 맞춤 가이드용)
+  const currentTourContext: TourContext =
+    currentRole === "teacher"
+      ? "teacher-dashboard"
+      : session && session.role === "student"
+      ? "student-journal"
+      : "student-login";
+
   // 학생 본인 전용 일기 목록 (RLS 격리)
   const studentEntries = session ? journalStore.getStudentEntries(session.userId) : [];
 
@@ -199,6 +221,7 @@ export default function Home() {
                     studentNumber={session.studentNumber || ""}
                     studentName={session.name}
                     onSubmit={handleSaveReflection}
+                    onOpenPasswordChange={() => setIsStudentPasswordOpen(true)}
                   />
                 ) : (
                   <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-2xl border border-slate-200 text-center">
@@ -224,6 +247,8 @@ export default function Home() {
             onSelectClass={(cls) => setActiveClass(cls)}
             onOpenClassSetup={handleOpenClassSetup}
             onOpenRosterUpload={() => setIsRosterUploadOpen(true)}
+            onOpenSettings={() => setIsTeacherSettingsOpen(true)}
+            onOpenStudentManagement={() => setIsStudentManagementOpen(true)}
             onGoToPrint={() => setCurrentRole("print")}
           />
         )}
@@ -238,22 +263,53 @@ export default function Home() {
         )}
       </main>
 
-      {/* 수업 개설 모달 */}
+      {/* 1. 첫 접속 웰컴 환영 모달 */}
+      <WelcomeModal
+        isOpen={isWelcomeOpen}
+        onClose={() => setIsWelcomeOpen(false)}
+      />
+
+      {/* 2. 수업 개설 모달 */}
       <ClassSetupModal
         isOpen={isClassSetupOpen}
         onClose={() => setIsClassSetupOpen(false)}
         onSaveClass={handleSaveClass}
-        teacherName={session?.name || "수학교사"}
+        teacherName={session?.name || authEngine.getTeacherName()}
       />
 
-      {/* 교사 관리자 인증 모달 */}
+      {/* 3. 교사 관리자 PIN 인증 모달 */}
       <TeacherAuthModal
         isOpen={isTeacherAuthOpen}
         onClose={() => setIsTeacherAuthOpen(false)}
         onSuccess={handleTeacherAuthSuccess}
       />
 
-      {/* 엑셀 명렬표 등록 모달 */}
+      {/* 4. 교사 환경설정 모달 (이름 및 비밀번호 변경) */}
+      <TeacherSettingsModal
+        isOpen={isTeacherSettingsOpen}
+        onClose={() => setIsTeacherSettingsOpen(false)}
+        currentClass={activeClass}
+        onClassUpdated={refreshData}
+      />
+
+      {/* 5. 학생 명렬 및 PIN 관리 모달 */}
+      <StudentManagementModal
+        isOpen={isStudentManagementOpen}
+        onClose={() => setIsStudentManagementOpen(false)}
+        currentClass={activeClass}
+      />
+
+      {/* 6. 학생 본인 비밀번호 변경 모달 */}
+      {session && (
+        <StudentPasswordModal
+          isOpen={isStudentPasswordOpen}
+          onClose={() => setIsStudentPasswordOpen(false)}
+          studentNumber={session.studentNumber || ""}
+          studentName={session.name}
+        />
+      )}
+
+      {/* 7. 엑셀 명렬표 등록 모달 */}
       <RosterUploadModal
         isOpen={isRosterUploadOpen}
         onClose={() => setIsRosterUploadOpen(false)}
@@ -261,10 +317,11 @@ export default function Home() {
         onSuccess={refreshData}
       />
 
-      {/* 사용법 가이드 투어 모달 */}
+      {/* 8. 화면 맞춤형 스포트라이트 포스트잇 가이드 투어 모달 */}
       <TourGuide
         isOpen={isTourOpen}
         onClose={() => setIsTourOpen(false)}
+        context={currentTourContext}
       />
     </div>
   );
