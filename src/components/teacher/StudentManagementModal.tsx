@@ -23,12 +23,17 @@ export const StudentManagementModal: React.FC<StudentManagementModalProps> = ({
 
   useEffect(() => {
     if (isOpen && typeof window !== "undefined") {
-      const raw = localStorage.getItem("math_reflection_students_v4") || localStorage.getItem("math_reflection_students_v2");
-      if (raw) {
-        try {
-          setStudents(JSON.parse(raw));
-        } catch {
-          setStudents([]);
+      const enrollments = authEngine.getEnrollments();
+      if (enrollments && enrollments.length > 0) {
+        setStudents(enrollments);
+      } else {
+        const raw = localStorage.getItem("math_reflection_students_v4") || localStorage.getItem("math_reflection_students_v2");
+        if (raw) {
+          try {
+            setStudents(JSON.parse(raw));
+          } catch {
+            setStudents([]);
+          }
         }
       }
     }

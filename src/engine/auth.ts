@@ -32,6 +32,9 @@ export interface StudentEnrollment {
   teacherName: string;
 }
 
+// 하위 호환성을 위한 타입 별칭
+export type StudentAuthRecord = StudentEnrollment;
+
 const SESSION_STORAGE_KEY = "math_reflection_session_v5";
 const STORAGE_KEY_TEACHERS = "math_reflection_teachers_v5";
 const STORAGE_KEY_ENROLLMENTS = "math_reflection_enrollments_v5";
