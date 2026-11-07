@@ -27,6 +27,7 @@ interface TeacherDashboardProps {
   onOpenSettings: () => void;
   onOpenStudentManagement: () => void;
   onOpenAIAssistant: () => void;
+  onOpenChapterSelect?: () => void;
   onGoToPrint: () => void;
 }
 
@@ -40,6 +41,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   onOpenSettings,
   onOpenStudentManagement,
   onOpenAIAssistant,
+  onOpenChapterSelect,
   onGoToPrint,
 }) => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -174,8 +176,18 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <span>·</span>
             <span>과목: {currentClass.subject}</span>
             <span>·</span>
-            <span className="font-semibold text-blue-600">
-              오늘 진도: {currentClass.activeChapter.minor}
+            <span className="font-semibold text-blue-600 flex items-center gap-1.5 bg-blue-50/70 border border-blue-200/60 px-2 py-0.5 rounded-lg">
+              <span>오늘 진도: {currentClass.activeChapter.minor}</span>
+              {onOpenChapterSelect && (
+                <button
+                  type="button"
+                  onClick={onOpenChapterSelect}
+                  className="text-blue-700 hover:text-blue-900 bg-white hover:bg-blue-100/50 px-2 py-0.5 rounded-md border border-blue-300 font-bold text-[11px] transition-colors cursor-pointer"
+                  title="수업을 새로 개설하지 않고 오늘의 진도 단원만 1클릭 변경"
+                >
+                  ✏️ 진도 변경
+                </button>
+              )}
             </span>
           </div>
         </div>

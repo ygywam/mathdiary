@@ -10,6 +10,7 @@ import { StudentPasswordModal } from "@/components/student/StudentPasswordModal"
 import { ClassSelectionModal } from "@/components/student/ClassSelectionModal";
 import { TeacherDashboard } from "@/components/teacher/TeacherDashboard";
 import { ClassSetupModal } from "@/components/teacher/ClassSetupModal";
+import { ChapterSelectModal } from "@/components/teacher/ChapterSelectModal";
 import { TeacherAuthModal } from "@/components/teacher/TeacherAuthModal";
 import { TeacherSettingsModal } from "@/components/teacher/TeacherSettingsModal";
 import { StudentManagementModal } from "@/components/teacher/StudentManagementModal";
@@ -22,6 +23,7 @@ import {
   ClassSession,
   ReflectionEntry,
   ReflectionAnswers,
+  ChapterInfo,
 } from "@/store/useJournalStore";
 import { authEngine, UserSession, StudentEnrollment } from "@/engine/auth";
 
@@ -49,6 +51,7 @@ export default function Home() {
   const [isStudentPasswordOpen, setIsStudentPasswordOpen] = useState(false);
   const [isRosterUploadOpen, setIsRosterUploadOpen] = useState(false);
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [isChapterSelectOpen, setIsChapterSelectOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
 
   // 데이터 동기화 함수
@@ -231,6 +234,14 @@ export default function Home() {
     setIsClassSetupOpen(false);
   };
 
+  // 오늘 진도 단원 1클릭 변경 핸들러
+  const handleUpdateChapter = async (newChapter: ChapterInfo) => {
+    if (!activeClass) return;
+    await journalStore.updateClassActiveChapter(activeClass.id, newChapter);
+    setActiveClass((prev) => (prev ? { ...prev, activeChapter: newChapter } : null));
+    refreshData();
+  };
+
   // 현재 화면 컨텍스트 (투어 맞춤 가이드용)
   const currentTourContext: TourContext =
     currentRole === "teacher"
@@ -328,6 +339,7 @@ export default function Home() {
             onOpenSettings={() => setIsTeacherSettingsOpen(true)}
             onOpenStudentManagement={() => setIsStudentManagementOpen(true)}
             onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
+            onOpenChapterSelect={() => setIsChapterSelectOpen(true)}
             onGoToPrint={() => setCurrentRole("print")}
           />
         )}
@@ -406,6 +418,16 @@ export default function Home() {
         currentClass={activeClass}
         entries={currentClassEntries}
       />
+
+      {/* 오늘 진도 단원 1클릭 변경 모달 */}
+      {activeClass && (
+        <ChapterSelectModal
+          isOpen={isChapterSelectOpen}
+          onClose={() => setIsChapterSelectOpen(false)}
+          currentClass={activeClass}
+          onUpdateChapter={handleUpdateChapter}
+        />
+      )}
 
       {/* 화면 맞춤형 스포트라이트 포스트잇 가이드 투어 모달 */}
       <TourGuide

@@ -89,7 +89,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
               <span>새 수학 수업 개설 & 교육과정 자동완성</span>
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              학년과 과목을 고르고 오늘 진도 단원을 1클릭하면 바로 채워집니다.
+              수업은 학기당 1회만 개설하며, 매 차시 진도 단원은 대시보드에서 [진도 변경]으로 자유롭게 변경됩니다.
             </p>
           </div>
           <button
@@ -103,7 +103,7 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
         {/* 폼 본문 */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
           {/* 수업 기본 정보 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 학급 / 수업 이름
@@ -112,8 +112,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
                 type="text"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
-                placeholder=""
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="예: 2학년 1반 또는 방과후 미적분"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -125,28 +125,8 @@ export const ClassSetupModal: React.FC<ClassSetupModalProps> = ({
                 type="text"
                 value={currentTeacherName}
                 onChange={(e) => setCurrentTeacherName(e.target.value)}
-                placeholder=""
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                <span>학기 고정 수업코드</span>
-                <button
-                  type="button"
-                  onClick={handleGenerateNewCode}
-                  className="text-[11px] text-blue-600 hover:underline flex items-center space-x-1"
-                >
-                  <KeyRound className="w-3 h-3" />
-                  <span>새 코드</span>
-                </button>
-              </label>
-              <input
-                type="text"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value.toUpperCase())}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-widest text-blue-700 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                placeholder="예: 홍길동 선생님"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
