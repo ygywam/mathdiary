@@ -15,3 +15,4 @@
 - [x] 13. 수업코드 전면 소거(헤더 카드, Empty State 문구, 개설 모달, 가이드 투어) 및 Gemini API 연동 수학교과 세특(과세특) 초안 자동 작성 AI 기능 탑재 (교사 기기 로컬 안전 보관, 교육부 기재요령 준수 프롬프트, 실시간 글자수/바이트 계산기, 나이스 1클릭 복사)
 - [x] 14. Vercel 빌드 타입 에러(StudentAuthRecord 누락) 완벽 해결 및 TourGuide/단일 HTML 가이드 투어의 구식 수업코드 단계를 [✨ 세특 AI 작성] 단계로 전면 동기화
 - [x] 15. 수업 개설 모달 내 잔존 수업코드 필드 완전 제거, [오늘 진도 단원 1클릭 변경] 모달 신설(새 수업 반복 개설 방지 및 학기 수업 누적 구조 확립), 학생 데이터 비학습(No Training) 익명화 전송 가드 및 실시간 API 토큰/요금(USD·KRW) 분석기 탑재
+- [x] 16. Vercel 빌드 타입 에러(ChapterSelectModal.tsx의 curriculum/minor 필드명 불일치) 해결: mathCurriculum.json 실제 스키마(chapters/name)로 완전 수정 및 next-env.d.ts 생성하여 빌드 안정성 100% 확보

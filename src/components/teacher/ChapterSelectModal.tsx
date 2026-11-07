@@ -107,28 +107,28 @@ export const ChapterSelectModal: React.FC<ChapterSelectModalProps> = ({
             </div>
 
             <div className="border border-slate-200 rounded-2xl p-3 bg-slate-50/50 max-h-56 overflow-y-auto space-y-4">
-              {activeSubject.curriculum.map((maj) => (
+              {activeSubject?.chapters?.map((maj) => (
                 <div key={maj.major} className="space-y-2">
                   <div className="text-xs font-bold text-slate-800 bg-white px-2.5 py-1 rounded-lg border border-slate-200 inline-block">
                     {maj.major}
                   </div>
                   <div className="space-y-2 pl-2">
                     {maj.minors.map((min) => (
-                      <div key={min.minor} className="space-y-1">
+                      <div key={min.name} className="space-y-1">
                         <div className="text-[11px] font-semibold text-slate-600">
-                          • {min.minor}
+                          • {min.name}
                         </div>
                         <div className="flex flex-wrap gap-1.5 pl-2">
                           {min.topics.map((top) => {
                             const isSelected =
                               selectedMajor === maj.major &&
-                              selectedMinor === min.minor &&
+                              selectedMinor === min.name &&
                               selectedTopic === top;
                             return (
                               <button
                                 key={top}
                                 type="button"
-                                onClick={() => handleSelectTopic(maj.major, min.minor, top)}
+                                onClick={() => handleSelectTopic(maj.major, min.name, top)}
                                 className={`text-[11px] px-2.5 py-1 rounded-lg font-medium transition-all ${
                                   isSelected
                                     ? "bg-blue-600 text-white shadow-xs font-bold ring-2 ring-blue-300"
