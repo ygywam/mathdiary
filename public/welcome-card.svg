@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <!-- 소프트 배경 그라데이션 -->
+    <linearGradient id="wBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EFF6FF" />
+      <stop offset="100%" stop-color="#DBEAFE" />
+    </linearGradient>
+    <!-- 블루 액센트 그라데이션 -->
+    <linearGradient id="wBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <!-- 골드 앰버 그라데이션 -->
+    <linearGradient id="wGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1E3A8A" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="800" height="450" rx="24" fill="url(#wBg)" />
+
+  <!-- 모눈종이 그리드 패턴 -->
+  <g opacity="0.25" stroke="#93C5FD" stroke-width="1.5">
+    <line x1="50" y1="50" x2="750" y2="50" />
+    <line x1="50" y1="100" x2="750" y2="100" />
+    <line x1="50" y1="150" x2="750" y2="150" />
+    <line x1="50" y1="200" x2="750" y2="200" />
+    <line x1="50" y1="250" x2="750" y2="250" />
+    <line x1="50" y1="300" x2="750" y2="300" />
+    <line x1="50" y1="350" x2="750" y2="350" />
+    <line x1="50" y1="400" x2="750" y2="400" />
+    <line x1="100" y1="50" x2="100" y2="400" />
+    <line x1="200" y1="50" x2="200" y2="400" />
+    <line x1="300" y1="50" x2="300" y2="400" />
+    <line x1="400" y1="50" x2="400" y2="400" />
+    <line x1="500" y1="50" x2="500" y2="400" />
+    <line x1="600" y1="50" x2="600" y2="400" />
+    <line x1="700" y1="50" x2="700" y2="400" />
+  </g>
+
+  <!-- 배경 장식: 수학 함수 곡선 (사인 파동 및 포물선) -->
+  <path d="M 50,320 Q 200,80 400,280 T 750,180" fill="none" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+  <path d="M 120,380 Q 280,180 450,380" fill="none" stroke="#93C5FD" stroke-width="3" stroke-dasharray="6,6" opacity="0.7" />
+
+  <!-- 중앙: 성찰 일기장 수첩 (메인 그래픽) -->
+  <g filter="url(#softShadow)">
+    <!-- 수첩 표지 (네이비 블루) -->
+    <rect x="250" y="80" width="300" height="280" rx="18" fill="#1E40AF" />
+    <rect x="250" y="80" width="35" height="280" rx="8" fill="#1E3A8A" />
+    <!-- 스프링 바인더 구멍 -->
+    <circle cx="267" cy="110" r="5" fill="#DBEAFE" />
+    <circle cx="267" cy="150" r="5" fill="#DBEAFE" />
+    <circle cx="267" cy="190" r="5" fill="#DBEAFE" />
+    <circle cx="267" cy="230" r="5" fill="#DBEAFE" />
+    <circle cx="267" cy="270" r="5" fill="#DBEAFE" />
+    <circle cx="267" cy="310" r="5" fill="#DBEAFE" />
+
+    <!-- 펼쳐진 속지 (화이트 카드) -->
+    <rect x="285" y="95" width="250" height="250" rx="12" fill="#FFFFFF" />
+
+    <!-- 속지 상단 타이틀 바 -->
+    <rect x="305" y="115" width="120" height="12" rx="6" fill="#3B82F6" />
+    <rect x="440" y="117" width="75" height="8" rx="4" fill="#E2E8F0" />
+
+    <!-- 4문항 성찰 라인 (체크 리스트) -->
+    <circle cx="315" cy="155" r="7" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" />
+    <rect x="330" y="151" width="170" height="8" rx="4" fill="#94A3B8" />
+
+    <circle cx="315" cy="195" r="7" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" />
+    <rect x="330" y="191" width="150" height="8" rx="4" fill="#94A3B8" />
+
+    <circle cx="315" cy="235" r="7" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" />
+    <rect x="330" y="231" width="180" height="8" rx="4" fill="#CBD5E1" />
+
+    <circle cx="315" cy="275" r="7" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" />
+    <rect x="330" y="271" width="130" height="8" rx="4" fill="#CBD5E1" />
+
+    <!-- 하단 스탬프/피드백 배지 -->
+    <rect x="420" y="305" width="95" height="26" rx="8" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5" />
+    <text x="467" y="322" font-family="sans-serif" font-size="11" font-weight="bold" fill="#047857" text-anchor="middle">성장 확인 완료</text>
+  </g>
+
+  <!-- 좌측 떠 있는 수학 도구: 직각 삼각자 (골드 앰버) -->
+  <g filter="url(#softShadow)" transform="rotate(-15 150 200)">
+    <polygon points="120,130 220,230 120,230" fill="url(#wGold)" />
+    <polygon points="135,175 185,215 135,215" fill="#FEF3C7" />
+    <line x1="120" y1="150" x2="128" y2="150" stroke="#78350F" stroke-width="2" />
+    <line x1="120" y1="170" x2="132" y2="170" stroke="#78350F" stroke-width="2" />
+    <line x1="120" y1="190" x2="128" y2="190" stroke="#78350F" stroke-width="2" />
+    <line x1="120" y1="210" x2="132" y2="210" stroke="#78350F" stroke-width="2" />
+  </g>
+
+  <!-- 우측 떠 있는 기호: 수학 시그마 & 컴퍼스 연필 -->
+  <g filter="url(#softShadow)" transform="rotate(18 640 180)">
+    <!-- 연필 바디 -->
+    <polygon points="620,100 645,100 640,240 625,240" fill="#F59E0B" />
+    <polygon points="620,100 645,100 632,70" fill="#FDE68A" />
+    <polygon points="630,75 635,75 632,70" fill="#1E293B" />
+    <rect x="625" y="240" width="15" height="20" rx="3" fill="#F43F5E" />
+    <rect x="625" y="235" width="15" height="5" fill="#94A3B8" />
+  </g>
+
+  <!-- 반짝이는 스파클 효과들 -->
+  <g fill="#F59E0B">
+    <path d="M 680,80 Q 680,95 695,95 Q 680,95 680,110 Q 680,95 665,95 Q 680,95 680,80 Z" />
+    <path d="M 120,80 Q 120,90 130,90 Q 120,90 120,100 Q 120,90 110,90 Q 120,90 120,80 Z" />
+    <path d="M 230,350 Q 230,360 240,360 Q 230,360 230,370 Q 230,360 220,360 Q 230,360 230,350 Z" />
+  </g>
+
+  <!-- 상단 중앙 타이틀 텍스트 -->
+  <text x="400" y="48" font-family="'Pretendard', sans-serif" font-size="20" font-weight="800" fill="#1E3A8A" text-anchor="middle" letter-spacing="-0.5">
+    수학 수업 성찰 일기
+  </text>
+  <text x="400" y="405" font-family="'Pretendard', sans-serif" font-size="14" font-weight="600" fill="#64748B" text-anchor="middle">
+    오늘 배운 수학의 핵심 개념과 나의 성장을 매일 5분간 기록해보세요
+  </text>
+</svg>

@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Settings, Lock, User, X, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { Settings, Lock, User, X, CheckCircle2, AlertCircle } from "lucide-react";
 import { authEngine } from "@/engine/auth";
-import { journalStore, ClassSession } from "@/store/useJournalStore";
-import { supabase, isSupabaseConfigured } from "@/engine/supabaseClient";
+import { ClassSession } from "@/store/useJournalStore";
 
 interface TeacherSettingsModalProps {
   isOpen: boolean;
@@ -19,187 +18,147 @@ export const TeacherSettingsModal: React.FC<TeacherSettingsModalProps> = ({
   currentClass,
   onClassUpdated,
 }) => {
-  const [teacherName, setTeacherName] = useState(authEngine.getTeacherName());
-  const [currentPin, setCurrentPin] = useState("");
-  const [newPin, setNewPin] = useState("");
-  const [newPinConfirm, setNewPinConfirm] = useState("");
-
-  const [nameSuccess, setNameSuccess] = useState(false);
-  const [pinMessage, setPinMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const session = authEngine.getCurrentSession();
+  const [currentPass, setCurrentPass] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [newPassConfirm, setNewPassConfirm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   if (!isOpen) return null;
 
-  // 1. 교사 이름 저장 및 현재 수업 동기화
-  const handleSaveName = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!teacherName.trim()) {
-      alert("교사명을 입력해주세요.");
+    if (!session || session.role !== "teacher") {
+      setMessage({ type: "error", text: "교사 세션 정보가 없습니다." });
       return;
     }
-    const clean = teacherName.trim();
-    authEngine.saveTeacherName(clean);
-
-    // 현재 수업 및 기존 수업의 교사명 일괄 갱신
-    const allClasses = journalStore.getClasses();
-    const updated = allClasses.map((c) => ({
-      ...c,
-      teacherName: clean,
-    }));
-    if (typeof window !== "undefined") {
-      localStorage.setItem("math_reflection_classes_v2", JSON.stringify(updated));
-    }
-
-    // Supabase DB 클라우드 UPDATE
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.from("classes").update({ teacher: clean }).neq("teacher", clean);
-      } catch (err) {
-        console.warn("Cloud teacher name update error:", err);
-      }
-    }
-
-    setNameSuccess(true);
-    setTimeout(() => setNameSuccess(false), 2500);
-    onClassUpdated();
-  };
-
-  // 2. 관리자 비밀번호 PIN 변경
-  const handleChangePin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPin !== newPinConfirm) {
-      setPinMessage({ type: "error", text: "새 비밀번호 확인이 일치하지 않습니다." });
+    if (newPass !== newPassConfirm) {
+      setMessage({ type: "error", text: "새 비밀번호 확인이 일치하지 않습니다." });
       return;
     }
-    const res = authEngine.changeAdminPin(currentPin, newPin);
+    if (newPass.length < 4) {
+      setMessage({ type: "error", text: "새 비밀번호는 4자리 이상이어야 합니다." });
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(null);
+
+    const res = await authEngine.changeTeacherPassword(session.userId, currentPass, newPass);
+    setIsLoading(false);
+
     if (res.success) {
-      setPinMessage({ type: "success", text: res.message });
-      setCurrentPin("");
-      setNewPin("");
-      setNewPinConfirm("");
-      setTimeout(() => setPinMessage(null), 3000);
+      setMessage({ type: "success", text: res.message });
+      setCurrentPass("");
+      setNewPass("");
+      setNewPassConfirm("");
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
     } else {
-      setPinMessage({ type: "error", text: res.message });
+      setMessage({ type: "error", text: res.message });
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-md w-full p-6 text-slate-800 space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-slate-800 space-y-5 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center space-x-2 font-bold text-base text-slate-900">
             <Settings className="w-5 h-5 text-blue-600" />
-            <span>교사 환경설정</span>
+            <span>선생님 계정 설정</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 1. 교사 이름 설정 */}
-        <form onSubmit={handleSaveName} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-              <User className="w-4 h-4 text-blue-600" />
-              <span>담당 교사명 수정</span>
-            </label>
-            {nameSuccess && (
-              <span className="flex items-center space-x-1 text-[11px] font-semibold text-emerald-600">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>저장 완료</span>
-              </span>
-            )}
+        {/* 현재 로그인 교사 정보 */}
+        <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base">
+            <User className="w-5 h-5" />
           </div>
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={teacherName}
-              onChange={(e) => setTeacherName(e.target.value)}
-              placeholder="예: 홍길동 선생님"
-              className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors shadow-xs"
-            >
-              저장
-            </button>
+          <div>
+            <div className="font-bold text-slate-900 text-sm">{session?.name || "선생님"}</div>
+            <div className="text-xs text-blue-700">고유 교사 ID: {session?.userId}</div>
           </div>
-          <p className="text-[11px] text-slate-500">
-            * 변경 시 현재 개설된 수업의 담당 교사명이 함께 갱신됩니다.
-          </p>
-        </form>
+        </div>
 
-        {/* 2. 관리자 비밀번호 변경 */}
-        <form onSubmit={handleChangePin} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-          <label className="block text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-            <Lock className="w-4 h-4 text-amber-600" />
-            <span>교사 관리자 비밀번호 변경</span>
-          </label>
+        {/* 비밀번호 변경 폼 */}
+        <form onSubmit={handleChangePassword} className="space-y-4 pt-2">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-900">
+            <Lock className="w-4 h-4 text-blue-600" />
+            <span>선생님 비밀번호 변경</span>
+          </div>
 
-          {pinMessage && (
+          {message && (
             <div
-              className={`p-2.5 rounded-xl text-xs font-medium flex items-center space-x-1.5 border ${
-                pinMessage.type === "success"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-red-50 text-red-600 border-red-200"
+              className={`p-3 rounded-xl text-xs font-medium flex items-center space-x-2 ${
+                message.type === "success"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-red-50 text-red-600 border border-red-200"
               }`}
             >
-              {pinMessage.type === "success" ? (
+              {message.type === "success" ? (
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
               ) : (
                 <AlertCircle className="w-4 h-4 shrink-0" />
               )}
-              <span>{pinMessage.text}</span>
+              <span>{message.text}</span>
             </div>
           )}
 
-          <div className="space-y-2">
+          <div>
+            <label className="block text-xs text-slate-600 mb-1">현재 비밀번호</label>
             <input
               type="password"
-              value={currentPin}
-              onChange={(e) => setCurrentPin(e.target.value)}
-              placeholder="현재 비밀번호"
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-              required
+              value={currentPass}
+              onChange={(e) => setCurrentPass(e.target.value)}
+              placeholder="현재 비밀번호 입력"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-wider"
             />
-            <div className="grid grid-cols-2 gap-2">
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-slate-600 mb-1">새 비밀번호</label>
               <input
                 type="password"
-                value={newPin}
-                onChange={(e) => setNewPin(e.target.value)}
-                placeholder="새 비밀번호 (4자리 이상)"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                required
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                placeholder="4자리 이상"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-wider"
               />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-600 mb-1">새 비밀번호 확인</label>
               <input
                 type="password"
-                value={newPinConfirm}
-                onChange={(e) => setNewPinConfirm(e.target.value)}
-                placeholder="새 비밀번호 확인"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                required
+                value={newPassConfirm}
+                onChange={(e) => setNewPassConfirm(e.target.value)}
+                placeholder="한 번 더 입력"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-wider"
               />
             </div>
           </div>
 
-          <div className="flex justify-end pt-1">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition-colors shadow-xs"
-            >
-              비밀번호 변경
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-xs transition-colors shadow-xs cursor-pointer"
+          >
+            {isLoading ? "변경 중..." : "비밀번호 변경하기"}
+          </button>
         </form>
 
-        <div className="flex justify-end pt-1">
+        <div className="pt-2 border-t border-slate-100 flex justify-end">
           <button
-            type="button"
             onClick={onClose}
-            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
           >
             닫기
           </button>

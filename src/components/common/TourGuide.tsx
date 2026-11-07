@@ -13,42 +13,28 @@ interface TourStep {
   tip: string;
 }
 
-// 1. 학생 로그인 화면 전용 투어
+// 1. 학생 로그인 화면 전용 투어 (수업코드 불필요 간편 로그인)
 const STEPS_STUDENT_LOGIN: TourStep[] = [
   {
-    selector: '[data-tour="tour-class-code"]',
-    title: "1. 수업코드 입력",
-    targetName: "수업코드 입력칸",
-    description: "선생님이 알려주신 학급 고유 수업코드(예: MTH-101)를 입력합니다. 학기 내내 같은 코드를 사용합니다.",
-    tip: "💡 선생님께 부여받은 7자리 영문/숫자 코드입니다.",
-  },
-  {
     selector: '[data-tour="tour-student-number"]',
-    title: "2. 학번 입력",
+    title: "1. 학번 입력",
     targetName: "학번 입력칸",
-    description: "본인의 학번(예: 10101)을 입력합니다. 이메일이나 전화번호 없이 안전하게 식별됩니다.",
-    tip: "💡 개인정보가 수집되지 않아 안전합니다.",
+    description: "본인의 학번(예: 20315)을 입력합니다. 수업코드를 외울 필요 없이 학번으로 내 수업에 자동 연결됩니다.",
+    tip: "💡 이메일이나 전화번호 없이 안전하게 식별됩니다.",
   },
   {
-    selector: '[data-tour="tour-student-name"]',
-    title: "3. 이름 입력",
-    targetName: "이름 입력칸",
-    description: "일기장에 기록될 본인의 이름 또는 닉네임을 입력합니다.",
-    tip: "💡 선생님의 대시보드와 생기부 관찰 기록에 매칭됩니다.",
-  },
-  {
-    selector: '[data-tour="tour-student-pin"]',
-    title: "4. 비밀번호 PIN",
+    selector: '[data-tour="tour-pin"]',
+    title: "2. 비밀번호 PIN",
     targetName: "비밀번호 PIN (숫자 4자리)",
-    description: "나만 아는 4자리 숫자를 입력합니다. 다음 로그인 때도 이 PIN으로 본인 일기만 열람할 수 있습니다.",
+    description: "본인의 4자리 비밀번호를 입력합니다. (선생님이 설정해주신 초기 비밀번호 또는 본인이 변경한 비밀번호)",
     tip: "💡 다른 친구는 내 일기를 절대 열어볼 수 없습니다.",
   },
   {
     selector: '[data-tour="tour-login-btn"]',
-    title: "5. 수업 입장하기",
+    title: "3. 수업 입장하기",
     targetName: "입장하기 버튼",
-    description: "입력 후 버튼을 누르면 오늘 수업의 단원이 표시되고 4문항 성찰 일기를 작성할 수 있습니다.",
-    tip: "💡 정보가 맞지 않으면 선생님께 확인을 요청하세요.",
+    description: "버튼을 누르면 배정된 수업의 오늘 단원과 성찰 일기 작성 화면으로 즉시 입장합니다.",
+    tip: "💡 여러 수업을 듣는 경우 수업 선택 화면이 나타납니다.",
   },
 ];
 

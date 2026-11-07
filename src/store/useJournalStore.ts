@@ -83,6 +83,16 @@ export const journalStore = {
     }
   },
 
+  // 특정 교사에게 귀속된 수업 목록만 필터링 조회 (교사 간 데이터 완벽 격리)
+  getClassesByTeacher(teacherId: string, teacherName?: string): ClassSession[] {
+    const list = this.getClasses();
+    return list.filter((c) => {
+      if (c.teacherId && c.teacherId === teacherId) return true;
+      if (teacherName && c.teacherName && c.teacherName === teacherName) return true;
+      return false;
+    });
+  },
+
   // 수파베이스(Supabase) 클라우드에서 수업 목록 동기화
   async fetchClassesFromCloud(): Promise<ClassSession[]> {
     if (isSupabaseConfigured && supabase) {

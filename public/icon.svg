@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- 배경 그라데이션 -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <!-- 노트 그라데이션 -->
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+    <!-- 삼각자 앰버 골드 그라데이션 -->
+    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- 앱 아이콘 바운딩 박스 (iOS 스퀴클 라운드) -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
+
+  <!-- 장식용 미세 원형 그리드 (수학 모눈종이 모티브) -->
+  <g opacity="0.12" stroke="#FFFFFF" stroke-width="2">
+    <line x1="64" y1="128" x2="448" y2="128" />
+    <line x1="64" y1="192" x2="448" y2="192" />
+    <line x1="64" y1="256" x2="448" y2="256" />
+    <line x1="64" y1="320" x2="448" y2="320" />
+    <line x1="64" y1="384" x2="448" y2="384" />
+    <line x1="128" y1="64" x2="128" y2="448" />
+    <line x1="192" y1="64" x2="192" y2="448" />
+    <line x1="256" y1="64" x2="256" y2="448" />
+    <line x1="320" y1="64" x2="320" y2="448" />
+    <line x1="384" y1="64" x2="384" y2="448" />
+  </g>
+
+  <!-- 펼쳐진 성찰 일기장 북마크 -->
+  <g filter="url(#shadow)">
+    <!-- 왼쪽 페이지 -->
+    <path d="M 120,160 Q 180,180 256,180 L 256,380 Q 180,380 120,360 Z" fill="url(#pageGrad)" />
+    <!-- 오른쪽 페이지 -->
+    <path d="M 392,160 Q 332,180 256,180 L 256,380 Q 332,380 392,360 Z" fill="url(#pageGrad)" />
+    <!-- 중앙 책등 -->
+    <line x1="256" y1="180" x2="256" y2="380" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round" />
+    <!-- 일기장 줄무늬 -->
+    <line x1="150" y1="220" x2="225" y2="220" stroke="#94A3B8" stroke-width="5" stroke-linecap="round" />
+    <line x1="150" y1="260" x2="225" y2="260" stroke="#94A3B8" stroke-width="5" stroke-linecap="round" />
+    <line x1="150" y1="300" x2="225" y2="300" stroke="#94A3B8" stroke-width="5" stroke-linecap="round" />
+    <line x1="150" y1="340" x2="200" y2="340" stroke="#94A3B8" stroke-width="5" stroke-linecap="round" />
+  </g>
+
+  <!-- 수학 삼각자 (골드 앰버) -->
+  <g filter="url(#shadow)">
+    <!-- 삼각자 외곽 -->
+    <polygon points="230,120 400,290 230,290" fill="url(#amberGrad)" />
+    <!-- 삼각자 내부 구멍 -->
+    <polygon points="260,190 340,270 260,270" fill="#1E40AF" opacity="0.9" />
+    <!-- 눈금 -->
+    <line x1="230" y1="150" x2="245" y2="150" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+    <line x1="230" y1="180" x2="240" y2="180" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+    <line x1="230" y1="210" x2="245" y2="210" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+    <line x1="230" y1="240" x2="240" y2="240" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+    <line x1="230" y1="270" x2="245" y2="270" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+  </g>
+
+  <!-- 반짝이는 배움 스파클 별 -->
+  <path d="M 390,110 Q 390,135 415,135 Q 390,135 390,160 Q 390,135 365,135 Q 390,135 390,110 Z" fill="#FCD34D" />
+</svg>

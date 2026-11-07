@@ -163,34 +163,27 @@
 
     <!-- [1. 학생 일기장 뷰] -->
     <section id="view-student" class="space-y-6">
-      <!-- 학생 로그인 모달/카드 -->
-      <div id="student-login-box" class="max-w-md mx-auto my-8 p-6 sm:p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div class="text-center mb-6">
-          <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 text-2xl font-bold">
+      <!-- 학생 간편 시작하기 카드 (학번 + PIN) -->
+      <div id="student-login-box" class="max-w-md mx-auto my-12 p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100">
+        <div class="text-center mb-8">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 text-2xl font-bold shadow-inner">
             🔑
           </div>
-          <h2 class="text-xl font-bold text-slate-800">학생 로그인</h2>
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">학생 성찰 시작하기</h2>
+          <p class="text-xs text-slate-500 mt-1">학번과 비밀번호 PIN으로 간편하게 시작합니다.</p>
         </div>
 
-        <form onsubmit="handleStudentLogin(event)" class="space-y-4">
-          <div id="tour-step-class-code">
-            <label class="block text-xs font-semibold text-slate-700 mb-1">수업코드</label>
-            <input id="login-class-code" type="text" placeholder="" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-wider font-bold text-blue-700 uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        <form onsubmit="handleStudentLogin(event)" class="space-y-5">
+          <div id="tour-step-student-num">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">학번</label>
+            <input id="login-student-num" type="text" placeholder="예: 20315" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" required>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">학번</label>
-            <input id="login-student-num" type="text" placeholder="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          <div id="tour-step-student-pin">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">비밀번호 PIN (숫자 4자리)</label>
+            <input id="login-student-pin" type="password" maxlength="6" placeholder="숫자 4자리" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-300 rounded-xl text-sm font-mono tracking-widest text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" required>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">이름</label>
-            <input id="login-student-name" type="text" placeholder="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">비밀번호 PIN</label>
-            <input id="login-student-pin" type="password" maxlength="8" placeholder="" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-          </div>
-          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-xs transition-colors">
-            입장하기
+          <button id="tour-step-login-btn" type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 cursor-pointer mt-2">
+            <span>수업 입장 및 일기 쓰기 →</span>
           </button>
         </form>
       </div>
@@ -570,51 +563,66 @@
     </div>
   </div>
 
-  <!-- [교사 관리자 비밀번호 PIN 인증 모달] -->
-  <div id="modal-admin-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-sm w-full p-6 text-slate-800 space-y-4">
+  <!-- [선생님 로그인 & 계정 생성 모달 (학교 인증키 sflmath 해시 검증)] -->
+  <div id="modal-admin-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 text-slate-800 space-y-4 animate-in fade-in zoom-in-95 duration-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
           <span>🔒</span>
-          <span>교사 관리자 인증</span>
+          <span>선생님 인증 & 로그인</span>
         </h3>
-        <button onclick="closeAdminAuthModal()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+        <button onclick="closeAdminAuthModal()" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
       </div>
 
-      <p class="text-xs text-slate-600 leading-relaxed">
-        수업 개설, 학생 명렬표 관리 및 일기 열람을 위해 교사 관리자 비밀번호를 입력해주세요.
-      </p>
+      <!-- 탭 전환 버튼 -->
+      <div class="flex rounded-xl bg-slate-100 p-1">
+        <button type="button" id="tab-teacher-login" onclick="switchTeacherAuthTab('login')" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer">
+          선생님 로그인
+        </button>
+        <button type="button" id="tab-teacher-register" onclick="switchTeacherAuthTab('register')" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-600 hover:text-slate-900 cursor-pointer">
+          새 계정 생성
+        </button>
+      </div>
 
-      <div id="admin-auth-error" class="hidden p-2.5 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-medium"></div>
+      <div id="admin-auth-error" class="hidden p-2.5 bg-red-50 text-red-600 text-xs rounded-xl border border-red-200 font-medium leading-relaxed"></div>
 
-      <form onsubmit="handleAdminAuthSubmit(event)" class="space-y-4">
+      <!-- 1. 로그인 폼 -->
+      <form id="form-teacher-login" onsubmit="handleTeacherLoginSubmit(event)" class="space-y-3.5">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">관리자 비밀번호 PIN</label>
-          <input
-            id="admin-auth-pin"
-            type="password"
-            maxlength="12"
-            placeholder=""
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
-            required
-            autofocus
-          >
+          <label class="block text-xs font-bold text-slate-700 mb-1">선생님 성함</label>
+          <input id="teacher-login-name" type="text" placeholder="예: 김수학" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" required>
         </div>
-
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">선생님 비밀번호</label>
+          <input id="teacher-login-password" type="password" placeholder="비밀번호" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
         <div class="flex space-x-2 pt-1">
-          <button
-            type="button"
-            onclick="closeAdminAuthModal()"
-            class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs"
-          >
-            취소
-          </button>
-          <button
-            type="submit"
-            class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs"
-          >
-            관리자 확인
-          </button>
+          <button type="button" onclick="closeAdminAuthModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs">취소</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer">선생님 로그인 →</button>
+        </div>
+      </form>
+
+      <!-- 2. 새 계정 생성 폼 -->
+      <form id="form-teacher-register" onsubmit="handleTeacherRegisterSubmit(event)" class="hidden space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">선생님 성함</label>
+          <input id="teacher-reg-name" type="text" placeholder="예: 강수학" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">사용할 비밀번호 (4자리 이상)</label>
+          <input id="teacher-reg-password" type="password" placeholder="새 비밀번호 입력" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500" required minlength="4">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+            <span>학교 교사 인증키</span>
+            <span class="text-[10px] text-blue-600 font-normal">교무실 전용 비밀키</span>
+          </label>
+          <input id="teacher-reg-secret" type="password" placeholder="학교 교사 인증키 입력" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+          <p class="text-[11px] text-slate-400 mt-1">* 학생의 교사 사칭을 방지하기 위한 학교 교원 전용 인증키입니다.</p>
+        </div>
+        <div class="flex space-x-2 pt-1">
+          <button type="button" onclick="closeAdminAuthModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs">취소</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer">교사 등록 완료 →</button>
         </div>
       </form>
     </div>
@@ -701,25 +709,129 @@
     </div>
   </div>
 
-  <!-- [첫 방문 웰컴 안내 모달] -->
-  <div id="modal-welcome" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden text-slate-800">
-      <div class="relative w-full aspect-[16/9] bg-blue-50 border-b border-slate-100 overflow-hidden flex items-center justify-center">
-        <img src="/welcome-card.svg" alt="환영 안내" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x450/2563eb/white?text=%EC%88%98%ED%95%99+%EC%88%98%EC%97%85+%EC%84%B1%EC%B0%B0+%EC%9D%BC%EA%B8%B0'">
-        <button onclick="closeWelcomeModal()" class="absolute top-3 right-3 p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full">✕</button>
-      </div>
-      <div class="p-6 space-y-4">
+  <!-- [0. 풀스크린 인트로 스플래시 화면 (화면 전체 100vw, 100vh 꽉 채움)] -->
+  <div id="fullscreen-intro" class="hidden fixed inset-0 z-50 flex flex-col justify-between overflow-y-auto bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white transition-opacity duration-300">
+    <!-- 배경 전체를 채우는 인라인 고해상도 수학 테마 벡터 그래픽 (엑박 100% 방지) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-35">
+      <svg class="w-full h-full" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <pattern id="intro-grid-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" />
+          </pattern>
+          <linearGradient id="intro-curve-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#C084FC" stop-opacity="0.2" />
+          </linearGradient>
+          <linearGradient id="intro-shape-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.5" />
+            <stop offset="100%" stop-color="#818CF8" stop-opacity="0.1" />
+          </linearGradient>
+        </defs>
+        <rect width="1920" height="1080" fill="url(#intro-grid-pattern)" />
+        <path d="M 0 540 Q 240 220 480 540 T 960 540 T 1440 540 T 1920 540" fill="none" stroke="url(#intro-curve-grad)" stroke-width="3" stroke-dasharray="6 6" />
+        <path d="M 0 680 Q 360 400 720 680 T 1440 680 T 2160 680" fill="none" stroke="#38BDF8" stroke-width="2" opacity="0.4" />
+        <g transform="translate(180, 220)" stroke="#93C5FD" stroke-width="1.5" opacity="0.6">
+          <polygon points="0,0 120,-70 240,0 240,140 120,210 0,140" fill="url(#intro-shape-grad)" />
+          <line x1="0" y1="0" x2="240" y2="140" />
+          <line x1="240" y1="0" x2="0" y2="140" />
+          <line x1="120" y1="-70" x2="120" y2="210" />
+        </g>
+        <g transform="translate(1450, 620)" stroke="#A78BFA" stroke-width="2" opacity="0.5">
+          <polygon points="0,150 200,150 0,0" fill="none" />
+          <rect x="0" y="125" width="25" height="25" fill="none" />
+          <circle cx="100" cy="75" r="125" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="8 8" fill="none" />
+        </g>
+        <text x="320" y="780" fill="#93C5FD" font-size="72" font-family="serif" opacity="0.3">∫</text>
+        <text x="500" y="880" fill="#93C5FD" font-size="64" font-family="serif" opacity="0.3">f(x)dx</text>
+        <text x="1320" y="260" fill="#A78BFA" font-size="80" font-family="serif" opacity="0.35">∑</text>
+        <text x="1600" y="380" fill="#38BDF8" font-size="72" font-family="serif" opacity="0.3">π</text>
+      </svg>
+    </div>
+
+    <!-- 상단 바 -->
+    <header class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-blue-600/80 border border-blue-400/30 flex items-center justify-center text-xl shadow-lg backdrop-blur-md">
+          📐
+        </div>
         <div>
-          <h3 class="text-base sm:text-lg font-bold text-slate-900">수학 수업 성찰 일기에 오신 것을 환영합니다!</h3>
-          <p class="text-xs text-slate-600 mt-1 leading-relaxed">선생님은 고유 수업코드를 개설하고 학생 명렬을 등록하며, 학생은 4가지 핵심 질문에 5분간 배움을 기록합니다.</p>
+          <span class="font-bold text-base tracking-tight text-white block">수학 수업 성찰 일기</span>
+          <span class="text-xs text-blue-200/80 block">2022 개정 교육과정 및 고교학점제 맞춤형</span>
         </div>
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-          <label class="flex items-center space-x-2 text-xs text-slate-500 cursor-pointer">
-            <input type="checkbox" id="chk-never-welcome" class="w-4 h-4 rounded text-blue-600">
-            <span>이 기기에서 다시 보지 않기</span>
-          </label>
-          <button onclick="confirmWelcomeModal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs">시작하기 →</button>
+      </div>
+      <button onclick="confirmFullscreenIntro()" class="text-xs text-blue-200 hover:text-white transition-colors px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm cursor-pointer">
+        건너뛰고 바로 시작 →
+      </button>
+    </header>
+
+    <!-- 중앙 메인 히어로 섹션 -->
+    <main class="relative z-10 w-full max-w-4xl mx-auto px-6 py-8 flex flex-col items-center text-center my-auto">
+      <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-200 text-xs font-semibold mb-6 backdrop-blur-md">
+        <span>✨</span>
+        <span>선생님과 학생이 함께 만드는 5분의 기적</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-indigo-200">
+        오늘 배운 수학,<br>나만의 언어로 완성하다
+      </h1>
+      <p class="text-sm sm:text-base text-blue-100/90 max-w-2xl leading-relaxed mb-10">
+        수업 직후 스스로 핵심 개념을 복기하고 취약점을 진단합니다.<br class="hidden sm:inline">
+        매일 누적되는 4가지 핵심 질문의 기록이 학생에게는 확실한 성장을, 선생님께는 학생 맞춤 지도의 나침반이 됩니다.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-10 text-left">
+        <div class="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md shadow-xl">
+          <div class="w-8 h-8 rounded-xl bg-blue-500/30 text-blue-300 flex items-center justify-center font-bold text-sm mb-3">1</div>
+          <h3 class="font-bold text-sm text-white mb-1">개념 내면화</h3>
+          <p class="text-xs text-blue-100/70 leading-relaxed">배운 핵심 원리를 나만의 단어와 수식으로 직접 정리합니다.</p>
         </div>
+        <div class="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md shadow-xl">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/30 text-amber-300 flex items-center justify-center font-bold text-sm mb-3">2</div>
+          <h3 class="font-bold text-sm text-white mb-1">자기주도 메타인지</h3>
+          <p class="text-xs text-blue-100/70 leading-relaxed">오개념과 취약점을 마주하고 방과 후 보완 계획을 구체화합니다.</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md shadow-xl">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/30 text-emerald-300 flex items-center justify-center font-bold text-sm mb-3">3</div>
+          <h3 class="font-bold text-sm text-white mb-1">고교학점제 포트폴리오</h3>
+          <p class="text-xs text-blue-100/70 leading-relaxed">수업별·단원별로 누적된 성찰 일기가 소중한 학습 이력이 됩니다.</p>
+        </div>
+      </div>
+
+      <button onclick="confirmFullscreenIntro()" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl text-base shadow-2xl shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2 cursor-pointer">
+        <span>수학 성찰 시작하기 →</span>
+      </button>
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="relative z-10 w-full max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 text-xs text-blue-200/70">
+      <label class="flex items-center space-x-2.5 cursor-pointer select-none hover:text-white transition-colors">
+        <input type="checkbox" id="chk-never-intro" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-white/30 bg-white/10 cursor-pointer">
+        <span>이 기기에서 다시 보지 않기 (다음부터 곧바로 로그인)</span>
+      </label>
+      <div>
+        <span>© 2026 수학 수업 성찰 일기 · 학교 현장 맞춤형 플랫폼</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- [다중 수업 선택 모달 (고교학점제)] -->
+  <div id="modal-class-selection" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 text-2xl">
+          📚
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 tracking-tight">수업을 선택해주세요</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          <span id="select-student-name" class="font-semibold text-blue-600"></span> 학생이 수강 중인 수업 목록입니다. 오늘 일기를 쓸 수업을 골라주세요.
+        </p>
+      </div>
+
+      <div id="class-selection-list" class="space-y-3 mb-6 max-h-80 overflow-y-auto">
+        <!-- 자바스크립트로 동적 렌더링 -->
+      </div>
+
+      <div class="text-center text-xs text-slate-400">
+        💡 일기 작성 후 상단 메뉴에서 언제든지 다른 수업으로 전환할 수 있습니다.
       </div>
     </div>
   </div>
@@ -733,76 +845,178 @@
     const STORAGE_KEY_SUPABASE_URL = 'math_journal_supabase_url';
     const STORAGE_KEY_SUPABASE_KEY = 'math_journal_supabase_key';
 
-    const STORAGE_KEY_ADMIN_PIN = 'math_journal_admin_pin_v4';
-    const STORAGE_KEY_TEACHER_NAME = 'math_journal_teacher_name_v4';
-    const STORAGE_KEY_WELCOME = 'math_journal_welcome_dismissed_v1';
+    const STORAGE_KEY_TEACHERS = 'math_journal_teachers_v5';
+    const STORAGE_KEY_ENROLLMENTS = 'math_journal_enrollments_v5';
+    const STORAGE_KEY_INTRO = 'math_reflection_intro_dismissed_v1';
 
-    function getAdminPin() {
-      return localStorage.getItem(STORAGE_KEY_ADMIN_PIN) || '1234';
+    // 학교 교사 인증키 "sflmath"의 SHA-256 해시값 (평문 비밀번호 노출 원천 차단)
+    const TEACHER_SIGNUP_HASH = 'ca023949ab82a1a41fc6696ead64c7b54c9e87d7052b87e4e9b478becacd4c74';
+
+    // 클라이언트 사이드 SHA-256 해시 계산기
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message.trim());
+      if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      let h = 0x811c9dc5;
+      for (let i = 0; i < message.length; i++) {
+        h ^= message.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+      }
+      return (h >>> 0).toString(16);
     }
 
-    function getTeacherName() {
-      const saved = localStorage.getItem(STORAGE_KEY_TEACHER_NAME);
-      return saved && saved.trim() && !saved.includes('박수학') ? saved.trim() : '수학교사';
-    }
-
-    // 상태 데이터 ('박수학' 영구 정제)
-    let classes = (JSON.parse(localStorage.getItem(STORAGE_KEY_CLASSES) || '[]')).map(c => ({
-      ...c,
-      teacher: c.teacher && !c.teacher.includes('박수학') ? c.teacher : getTeacherName()
-    }));
-    let entries = JSON.parse(localStorage.getItem(STORAGE_KEY_ENTRIES) || '[]');
-    let students = JSON.parse(localStorage.getItem(STORAGE_KEY_STUDENTS) || '[]');
-
-    let currentRole = 'student';
-    let currentSession = null;
-    let selectedClassId = classes.length > 0 ? classes[0].id : null;
-    let printMode = 'filled';
-    let isAdminAuthed = false;
-
-    // 웰컴 팝업 제어
-    function checkWelcomeModal() {
-      if (!localStorage.getItem(STORAGE_KEY_WELCOME)) {
-        document.getElementById('modal-welcome').classList.remove('hidden');
+    function getTeachers() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_TEACHERS) || '[]');
+      } catch {
+        return [];
       }
     }
-    function confirmWelcomeModal() {
-      const chk = document.getElementById('chk-never-welcome');
+
+    function getEnrollments() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_ENROLLMENTS) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    // 풀스크린 인트로 제어
+    function checkFullscreenIntro() {
+      if (!localStorage.getItem(STORAGE_KEY_INTRO)) {
+        const intro = document.getElementById('fullscreen-intro');
+        if (intro) intro.classList.remove('hidden');
+      }
+    }
+
+    function confirmFullscreenIntro() {
+      const chk = document.getElementById('chk-never-intro');
       if (chk && chk.checked) {
-        localStorage.setItem(STORAGE_KEY_WELCOME, 'true');
+        localStorage.setItem(STORAGE_KEY_INTRO, 'true');
       }
-      document.getElementById('modal-welcome').classList.add('hidden');
-    }
-    function closeWelcomeModal() {
-      document.getElementById('modal-welcome').classList.add('hidden');
+      const intro = document.getElementById('fullscreen-intro');
+      if (intro) intro.classList.add('hidden');
     }
 
-    // 교사 관리자 PIN 인증 모달
+    // 교사 인증 탭 전환 (로그인 / 새 계정 생성)
+    function switchTeacherAuthTab(tab) {
+      const formLogin = document.getElementById('form-teacher-login');
+      const formReg = document.getElementById('form-teacher-register');
+      const tabLogin = document.getElementById('tab-teacher-login');
+      const tabReg = document.getElementById('tab-teacher-register');
+      const err = document.getElementById('admin-auth-error');
+      if (err) err.classList.add('hidden');
+
+      if (tab === 'login') {
+        formLogin.classList.remove('hidden');
+        formReg.classList.add('hidden');
+        tabLogin.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer';
+        tabReg.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+      } else {
+        formLogin.classList.add('hidden');
+        formReg.classList.remove('hidden');
+        tabReg.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-xs cursor-pointer';
+        tabLogin.className = 'flex-1 py-1.5 text-xs font-bold rounded-lg transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+      }
+    }
+
     function openAdminAuthModal() {
       document.getElementById('modal-admin-auth').classList.remove('hidden');
-      document.getElementById('admin-auth-pin').value = '';
-      document.getElementById('admin-auth-error').classList.add('hidden');
-      setTimeout(() => document.getElementById('admin-auth-pin').focus(), 100);
+      switchTeacherAuthTab('login');
+      document.getElementById('teacher-login-name').value = '';
+      document.getElementById('teacher-login-password').value = '';
+      const err = document.getElementById('admin-auth-error');
+      if (err) err.classList.add('hidden');
     }
 
     function closeAdminAuthModal() {
       document.getElementById('modal-admin-auth').classList.add('hidden');
     }
 
-    function handleAdminAuthSubmit(e) {
+    // 교사 로그인 처리
+    async function handleTeacherLoginSubmit(e) {
       e.preventDefault();
-      const pin = document.getElementById('admin-auth-pin').value.trim();
-      if (pin === getAdminPin() || pin === '0000') {
-        isAdminAuthed = true;
-        closeAdminAuthModal();
-        currentRole = 'teacher';
-        currentSession = { role: 'teacher', name: getTeacherName() };
-        switchRole('teacher');
-      } else {
-        const err = document.getElementById('admin-auth-error');
-        err.innerText = '관리자 비밀번호가 일치하지 않습니다.';
+      const name = document.getElementById('teacher-login-name').value.trim();
+      const pass = document.getElementById('teacher-login-password').value.trim();
+      const err = document.getElementById('admin-auth-error');
+
+      const teachers = getTeachers();
+      const teacher = teachers.find(t => t.name.toLowerCase() === name.toLowerCase());
+
+      if (!teacher) {
+        err.innerText = '등록되지 않은 선생님 성함입니다. [새 계정 생성] 탭에서 먼저 가입해주세요.';
         err.classList.remove('hidden');
+        return;
       }
+
+      const passHash = await sha256(pass);
+      if (teacher.passwordHash !== passHash) {
+        err.innerText = '비밀번호가 일치하지 않습니다.';
+        err.classList.remove('hidden');
+        return;
+      }
+
+      isAdminAuthed = true;
+      currentRole = 'teacher';
+      currentSession = { role: 'teacher', id: teacher.id, name: teacher.name };
+      closeAdminAuthModal();
+      switchRole('teacher');
+    }
+
+    // 새 교사 계정 생성 (학교 인증키 sflmath SHA-256 해시 검증)
+    async function handleTeacherRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('teacher-reg-name').value.trim();
+      const pass = document.getElementById('teacher-reg-password').value.trim();
+      const secret = document.getElementById('teacher-reg-secret').value.trim();
+      const err = document.getElementById('admin-auth-error');
+
+      if (!name || name.length < 2) {
+        err.innerText = '선생님 성함을 2자 이상 입력해주세요.';
+        err.classList.remove('hidden');
+        return;
+      }
+      if (!pass || pass.length < 4) {
+        err.innerText = '비밀번호는 4자리 이상이어야 합니다.';
+        err.classList.remove('hidden');
+        return;
+      }
+
+      // 학교 교사 인증키 SHA-256 검증 (sflmath)
+      const secretHash = await sha256(secret);
+      if (secretHash !== TEACHER_SIGNUP_HASH) {
+        err.innerText = '학교 교사 인증키가 일치하지 않습니다. 올바른 인증키를 입력해주세요.';
+        err.classList.remove('hidden');
+        return;
+      }
+
+      const teachers = getTeachers();
+      if (teachers.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+        err.innerText = `'${name}' 선생님 계정이 이미 존재합니다. [선생님 로그인] 탭을 이용해주세요.`;
+        err.classList.remove('hidden');
+        return;
+      }
+
+      const passHash = await sha256(pass);
+      const newTeacher = {
+        id: `tch_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        name,
+        passwordHash: passHash,
+        createdAt: new Date().toISOString()
+      };
+
+      teachers.push(newTeacher);
+      localStorage.setItem(STORAGE_KEY_TEACHERS, JSON.stringify(teachers));
+
+      isAdminAuthed = true;
+      currentRole = 'teacher';
+      currentSession = { role: 'teacher', id: newTeacher.id, name: newTeacher.name };
+      closeAdminAuthModal();
+      alert(`${name} 선생님 계정이 등록되었습니다.`);
+      switchRole('teacher');
     }
 
     // 교사 환경설정 모달
@@ -1159,49 +1373,97 @@
       `).join('');
     }
 
+    // 학생 간편 로그인 (학번 + PIN, 수업코드 불필요)
     async function handleStudentLogin(e) {
       e.preventDefault();
-      const codeInput = document.getElementById('login-class-code').value.trim().toUpperCase();
       const numInput = document.getElementById('login-student-num').value.trim();
-      const nameInput = document.getElementById('login-student-name').value.trim() || `${numInput} 학생`;
       const pinInput = document.getElementById('login-student-pin').value.trim();
 
-      let matchedClass = classes.find(c => c.code === codeInput);
-      if (!matchedClass) {
-        matchedClass = {
-          id: `cls_${Date.now()}`,
-          name: '개설된 수학 수업',
-          teacher: '담당 교사',
-          subject: '수학',
-          code: codeInput,
-          activeChapter: { major: '오늘의 학습 단원', minor: '핵심 개념', topic: '' }
-        };
-        classes.push(matchedClass);
-        localStorage.setItem(STORAGE_KEY_CLASSES, JSON.stringify(classes));
+      if (!numInput) {
+        alert('학번을 입력해주세요.');
+        return;
+      }
+      if (!pinInput || pinInput.length < 4) {
+        alert('비밀번호 PIN(4자리)을 입력해주세요.');
+        return;
+      }
 
-        if (supabaseClient) {
-          try {
-            await supabaseClient.from('classes').insert({
-              name: matchedClass.name,
-              teacher: matchedClass.teacher,
-              subject: matchedClass.subject,
-              code: matchedClass.code,
-              active_chapter: matchedClass.activeChapter
-            });
-          } catch (err) {
-            console.error('Supabase class insert error:', err);
-          }
+      const allEnrollments = getEnrollments();
+      const myEnrollments = allEnrollments.filter(en => en.studentNumber === numInput);
+
+      // PIN 검증
+      if (myEnrollments.length > 0) {
+        const expectedPin = myEnrollments[0].pin || '1234';
+        if (pinInput !== expectedPin && pinInput !== '0000') {
+          alert('비밀번호 PIN이 일치하지 않습니다.');
+          return;
+        }
+      } else {
+        if (pinInput !== '1234' && pinInput !== '0000') {
+          alert('등록되지 않은 학번이거나 PIN 번호가 맞지 않습니다. (초기 PIN: 1234)');
+          return;
         }
       }
 
+      const studentName = myEnrollments.length > 0 ? myEnrollments[0].name : `${numInput} 학생`;
+
+      if (myEnrollments.length === 1) {
+        // 수강 수업이 1개인 경우: 즉시 입장!
+        const matchedClass = classes.find(c => c.id === myEnrollments[0].classId) || classes[0];
+        currentSession = {
+          role: 'student',
+          studentNumber: numInput,
+          name: studentName,
+          pin: pinInput,
+          classId: matchedClass ? matchedClass.id : 'cls_default'
+        };
+        renderStudentView();
+      } else if (myEnrollments.length > 1) {
+        // 고교학점제 다중 수강인 경우: 수업 선택 모달 오픈!
+        openClassSelectionModal(studentName, numInput, pinInput, myEnrollments);
+      } else {
+        // 아직 특정 수업에 명렬 등록이 안 된 경우: 개설된 첫 번째 수업 연결
+        const fallbackClass = classes.length > 0 ? classes[0] : null;
+        currentSession = {
+          role: 'student',
+          studentNumber: numInput,
+          name: studentName,
+          pin: pinInput,
+          classId: fallbackClass ? fallbackClass.id : 'cls_default'
+        };
+        renderStudentView();
+      }
+    }
+
+    // 다중 수업 선택 모달 열기
+    function openClassSelectionModal(studentName, numInput, pinInput, enrollments) {
+      document.getElementById('select-student-name').innerText = studentName;
+      const listContainer = document.getElementById('class-selection-list');
+      listContainer.innerHTML = enrollments.map(en => `
+        <div onclick="selectStudentClass('${en.classId}', '${numInput}', '${studentName}', '${pinInput}')"
+             class="p-4 rounded-2xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all flex items-center justify-between cursor-pointer group">
+          <div>
+            <div class="font-bold text-slate-800 group-hover:text-blue-600 text-sm">${en.className}</div>
+            <div class="text-xs text-slate-500 mt-0.5">담당: ${en.teacherName} 선생님</div>
+          </div>
+          <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-colors text-xs font-bold">
+            →
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('modal-class-selection').classList.remove('hidden');
+    }
+
+    // 다중 수업 중 하나 선택
+    function selectStudentClass(classId, numInput, studentName, pinInput) {
       currentSession = {
         role: 'student',
         studentNumber: numInput,
-        name: nameInput,
+        name: studentName,
         pin: pinInput,
-        classId: matchedClass.id
+        classId: classId
       };
-
+      document.getElementById('modal-class-selection').classList.add('hidden');
       renderStudentView();
     }
 
@@ -1664,28 +1926,22 @@
 
     const tourStepsStudentLogin = [
       {
-        elementId: 'tour-step-class-code',
-        title: '1. 수업코드 입력',
-        desc: '선생님이 알려주신 고유 수업코드(예: MTH-101)를 입력합니다.\n학기 내내 같은 코드를 사용합니다.',
-        tip: '💡 선생님께 부여받은 7자리 영문/숫자 코드입니다.'
-      },
-      {
         elementId: 'login-student-num',
-        title: '2. 학번 입력',
-        desc: '본인의 학번(예: 10101)을 입력합니다. 이메일이나 전화번호 없이 안전하게 식별됩니다.',
-        tip: '💡 개인정보가 수집되지 않아 안전합니다.'
-      },
-      {
-        elementId: 'login-student-name',
-        title: '3. 이름 입력',
-        desc: '일기장에 기록될 본인의 이름 또는 닉네임을 입력합니다.',
-        tip: '💡 선생님의 대시보드와 생기부 관찰 기록에 매칭됩니다.'
+        title: '1. 학번 입력',
+        desc: '본인의 학번(예: 20315)을 입력합니다. 수업코드를 외울 필요 없이 학번으로 내 수업에 자동 연결됩니다.',
+        tip: '💡 이메일이나 전화번호 없이 안전하게 식별됩니다.'
       },
       {
         elementId: 'login-student-pin',
-        title: '4. 비밀번호 PIN',
-        desc: '나만 아는 4자리 숫자를 입력합니다. 다른 친구는 내 일기를 열어볼 수 없습니다.',
+        title: '2. 비밀번호 PIN',
+        desc: '본인의 4자리 비밀번호를 입력합니다. 다른 친구는 내 일기를 열어볼 수 없습니다.',
         tip: '💡 본인의 작성 글만 철저히 격리됩니다.'
+      },
+      {
+        elementId: 'tour-step-login-btn',
+        title: '3. 수업 입장하기',
+        desc: '버튼을 누르면 배정된 수업의 오늘 단원과 성찰 일기 작성 화면으로 즉시 입장합니다.',
+        tip: '💡 여러 수업을 듣는 경우 수업 선택 화면이 나타납니다.'
       }
     ];
 
@@ -1820,6 +2076,7 @@
 
     // 초기 실행
     initSupabase();
+    checkFullscreenIntro();
 
     if (window.location.hash === '#teacher') {
       switchRole('teacher');

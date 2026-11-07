@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download, Upload, X, CheckCircle2, AlertCircle, FileSpreadsheet, Loader2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/engine/supabaseClient";
 import { journalStore, ClassSession } from "@/store/useJournalStore";
+import { authEngine } from "@/engine/auth";
 
 interface RosterUploadModalProps {
   isOpen: boolean;
@@ -142,13 +143,31 @@ export const RosterUploadModal: React.FC<RosterUploadModalProps> = ({
       }
 
       // 4. 로컬 스토리지 동기화 및 수업 확보
+      const targetClassId = currentClass?.id || "cls_default";
+      const targetClassName = currentClass?.name || parsedStudents[0].className;
+      const targetTeacherId = currentClass?.teacherId || "tch_default";
+      const targetTeacherName = currentClass?.teacherName || parsedStudents[0].teacherName;
+
+      // authEngine에 학생-수업 매칭 등록 (고교학점제 다중 수업 지원)
+      authEngine.enrollStudentsToClass(
+        targetClassId,
+        targetClassName,
+        targetTeacherId,
+        targetTeacherName,
+        parsedStudents.map((s) => ({
+          studentNumber: s.studentNumber,
+          name: s.name,
+          pin: s.pin,
+        }))
+      );
+
       parsedStudents.forEach((st) => {
         journalStore.registerStudentFallback({
           studentNumber: st.studentNumber,
           name: st.name,
           pin: st.pin,
-          classId: currentClass?.id || "cls_default",
-          className: st.className,
+          classId: targetClassId,
+          className: targetClassName,
         });
       });
 
