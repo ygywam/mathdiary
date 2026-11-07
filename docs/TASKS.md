@@ -18,3 +18,4 @@
 - [x] 16. Vercel 빌드 타입 에러(ChapterSelectModal.tsx의 curriculum/minor 필드명 불일치) 해결: mathCurriculum.json 실제 스키마(chapters/name)로 완전 수정 및 next-env.d.ts 생성하여 빌드 안정성 100% 확보
 - [x] 17. 학생 미선택/데이터 0건 상황에서도 즉시 4대 발문과 줄노트 괘선이 포함된 수기 작성용 빈 활동지가 출력되도록 A5PrintLayout 및 공유용 HTML 전면 개편
 - [x] 18. 인쇄 매수 버튼 UI 완전 제거(브라우저 기본 인쇄 설정 활용) 및 인쇄 규격 2종 분리(A4 세로 1장 전면형 vs A4 가로 2쪽 분할형) 완벽 구현: 동적 @page 및 렌더링 카드 분기 적용 (Next.js 웹앱 및 공유용 index.html 동시 반영)
+- [x] 19. Vercel 빌드 타입 에러(A5PrintLayout.tsx 67행의 ReflectionEntry classId 누락) 수정 완료 및 인터페이스 전수 검증 통과

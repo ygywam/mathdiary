@@ -66,6 +66,7 @@ export const A5PrintLayout: React.FC<A5PrintLayoutProps> = ({
       const count = pageLayout === "a4-single" ? 1 : 2;
       printItems = Array.from({ length: count }, (_, idx) => ({
         id: `blank_template_${idx}`,
+        classId: currentClass.id,
         studentId: "",
         studentNumber: "_______",
         studentName: "_______",
